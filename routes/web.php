@@ -42,5 +42,17 @@ Route::get('/test', function () {
 })->middleware(['auth', 'verified'])->name('test');
 
 Route::get('/vuetifydemo', function () {
-    return Inertia::render('VuetifyDemo');
+    return Inertia::render('VuetifyDemo01');
 })->middleware(['auth', 'verified'])->name('vuetifydemo');
+
+Route::get('/layout-test', function () {
+    return Inertia::render('LayoutTest');
+})->middleware(['auth', 'verified'])->name('layout-test');
+
+Route::get('/vuetifydemo02card', function () {
+    return Inertia::render('VuetifyDemo02Card');
+})->middleware(['auth', 'verified'])->name('vuetifydemo02card');
+
+Route::get('/vuetifydemobuttons', function () {
+    return Inertia::render('VuetifyDemoButtons');
+})->middleware(['auth', 'verified'])->name('vuetifydemo02buttons');
