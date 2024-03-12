@@ -40,3 +40,7 @@ require __DIR__.'/auth.php';
 Route::get('/test', function () {
     return Inertia::render('Test');
 })->middleware(['auth', 'verified'])->name('test');
+
+Route::get('/vuetifydemo', function () {
+    return Inertia::render('VuetifyDemo');
+})->middleware(['auth', 'verified'])->name('vuetifydemo');
