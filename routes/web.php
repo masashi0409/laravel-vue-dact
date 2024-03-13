@@ -56,3 +56,7 @@ Route::get('/vuetifydemo02card', function () {
 Route::get('/vuetifydemobuttons', function () {
     return Inertia::render('VuetifyDemoButtons');
 })->middleware(['auth', 'verified'])->name('vuetifydemo02buttons');
+
+Route::get('/vuetifydemoselect', function () {
+    return Inertia::render('VuetifyDemoSelect');
+})->middleware(['auth', 'verified'])->name('vuetifydemoselect');

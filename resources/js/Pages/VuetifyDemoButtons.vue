@@ -118,7 +118,7 @@ const clickLink = (routeName) => {
         </v-sheet>
 
         <v-container>
-            <div>Linkボタン</div>
+            <div class="text-h5">Linkボタン</div>
             <!-- △ aタグ（文字のところ）クリックしないと遷移しない -->
             <v-btn class="ma-2">
                 <a href="https://next.vuetifyjs.com/en/components/buttons/">
