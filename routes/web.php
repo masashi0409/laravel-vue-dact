@@ -60,3 +60,7 @@ Route::get('/vuetifydemobuttons', function () {
 Route::get('/vuetifydemoselect', function () {
     return Inertia::render('VuetifyDemoSelect');
 })->middleware(['auth', 'verified'])->name('vuetifydemoselect');
+
+Route::get('/data-table-items', function () {
+    return Inertia::render('DataTableItems');
+})->middleware(['auth', 'verified'])->name('data-table-items');
