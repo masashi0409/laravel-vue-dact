@@ -3,7 +3,10 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\DataTableItemApiController;
-
+use App\Http\Controllers\Api\CalcChartDataApiController;
+use App\Http\Controllers\Api\CalcSituationDataApiController;
+use App\Http\Controllers\Api\ReservationApiController;
+use App\Http\Controllers\Api\InpatientApiController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -20,3 +23,31 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 Route::get('data-table-item', [DataTableItemApiController::class, 'index'])->name('data-table-item');
+
+// 算定チャート
+// 日次データ取得
+Route::
+get('/calc-chart-data', [CalcChartDataApiController::class, 'index'])
+->name('api.calc-chart-data');
+// 月次データ取得
+Route::
+get('/calc-chart-term-month-data', [CalcChartDataApiController::class, 'getTermMonthData'])
+->name('api.calc-chart-term-month-data');
+
+// 算定状況
+Route::
+get('/calc-situation-data', [CalcSituationDataApiController::class, 'index'])
+->name('api.calc-situation-data');
+
+// 外来予約リスト
+Route::
+    // middleware('auth:sanctum')
+// ->
+get('/reservations', [ReservationApiController::class, 'index'])
+->name('api.reservations');
+// 在院患者リスト
+Route::
+    // middleware('auth:sanctum')
+// ->
+get('/inpatients', [InpatientApiController::class, 'index'])
+->name('api.inpatients');

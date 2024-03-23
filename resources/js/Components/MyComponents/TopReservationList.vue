@@ -1,0 +1,82 @@
+<script setup>
+  import { router } from '@inertiajs/vue3'
+  import { computed, ref, watch } from "vue"
+
+  const props = defineProps({
+    data: Array
+  })
+
+  const clickLinkReservation = () => {
+    router.visit('/reservation')
+  }
+
+  const reservationDatas = computed(() => props.data)
+  const tableDatas = ref([])
+  
+  // テーブル用に変換
+  watch(reservationDatas, () => {
+      tableDatas.value = reservationDatas.value
+  })
+ 
+  const headers = [
+    { title: '予約日時', align: 'start', key: 'reserved_datetime'},
+    { title: '患者番号', align: 'center', key: 'personal_id'},
+    { title: '患者名', align: 'center', key: 'full_name'},
+    { title: '年齢', align: 'center', key: 'age'},
+    { title: '診療科', align: 'center', key: 'section_name'},
+    { title: '予約内容', align: 'center', key: 'reserved_type'},
+    { title: '予約医師', align: 'center', key: 'doctor_name'},
+    { title: '主病名', align: 'start', key: 'diagnosis', sortable: false},
+    { title: '指導・管理', align: 'start', key: 'calc_patient', sortable: false},
+    { title: '逆紹介', align: 'center', key: ''},
+  ];
+  
+  const getColor = (e) => {
+      console.log('getColor')
+      console.log(e)
+  }
+  
+  const actionCalcPatient = (e) => {
+      console.log('actionPatient')
+      console.log(e)
+      console.log(e.achievements_count)
+      if (e.achievements_count > 0) {
+        return "bg-blue"
+      } else {
+        return "bg-red"
+      }
+  }
+</script>
+
+<template>
+  <div class="text-h6">
+    外来予約リスト
+    <v-btn icon="mdi-clipboard-list-outline" @click.prevent="clickLinkReservation">
+    </v-btn>
+  </div>
+  <div>
+    <v-data-table 
+    :headers="headers" 
+    :items="tableDatas"
+    >
+        <template v-slot:item.diagnosis="{ value }">
+            <template v-for="disease in value">
+                <div>
+                    {{ disease.disease_name }} {{ disease.primary_disease }}
+                </div>
+            </template>
+        </template>
+        <template v-slot:item.calc_patient="{ value }">
+             <!--<v-chip :color="getColor(value)">-->
+             <!--   test-->
+             <!-- </v-chip>-->
+            <template v-for="calcPatient in value">
+               <v-sheet :class="actionCalcPatient(calcPatient)">
+                    {{ calcPatient.scenario_control_name }}
+                </v-sheet>
+            </template>
+        </template>
+        <template #bottom></template>
+    </v-data-table>
+  </div>
+</template>

@@ -4,6 +4,9 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+use App\Http\Controllers\AppController;
+use App\Http\Controllers\ReservationController;
+use App\Http\Controllers\InpatientController;
 
 /*
 |--------------------------------------------------------------------------
@@ -64,3 +67,7 @@ Route::get('/vuetifydemoselect', function () {
 Route::get('/data-table-items', function () {
     return Inertia::render('DataTableItems');
 })->middleware(['auth', 'verified'])->name('data-table-items');
+
+Route::get('/', [AppController::class, 'index'])->name('app');
+Route::get('/reservation', [ReservationController::class, 'index'])->name('resetvation');
+Route::get('/inpatient', [InpatientController::class, 'index'])->name('inpatient');
