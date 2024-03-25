@@ -29,6 +29,7 @@ watch(inpetientDatas, () => {
             ward: ward,
             doctor_name: d.doctor_name,
             calc_patient: d.calc_patient,
+            calc_trigger: d.calc_trigger,
         })
     })
 })
@@ -48,7 +49,7 @@ const headers = [
         key: 'calc_patient',
         sortable: false,
     },
-    { title: '詳細', align: 'start', key: '', sortable: false },
+    { title: '詳細', align: 'start', key: 'calc_trigger', sortable: false },
 ]
 
 const actionCalcPatient = (e) => {
@@ -94,6 +95,13 @@ const clickunCalcIcon = (e) => {
                             mdi-exclamation
                         </v-icon>
                     </v-sheet>
+                </template>
+            </template>
+
+            <!-- 詳細（算定トリガー） -->
+            <template v-slot:item.calc_trigger="{ value }">
+                <template v-for="calcTrigger in value">
+                    <div>{{ calcTrigger.item_name }}</div>
                 </template>
             </template>
         </v-data-table>

@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\CalcPatient;
+use App\Models\CalcTrigger;
 
 class Inpatient extends Model
 {
@@ -14,6 +15,10 @@ class Inpatient extends Model
     
     public function calcPatient() {
         return $this->hasMany(CalcPatient::class, 'personal_id', 'personal_id');
+    }
+
+    public function calcTrigger(){
+        return $this->hasMany(CalcTrigger::class, 'personal_id', 'personal_id');
     }
 
     public function scopeKeyDate($query, $keyDate)

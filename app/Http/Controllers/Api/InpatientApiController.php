@@ -84,6 +84,16 @@ class InpatientApiController extends Controller
                     ;
                 }
             ])
+            ->with(['calcTrigger' =>
+                function($query) use($extractingDate) {
+                    $query->where('key_date', $extractingDate)
+                    ->select(
+                        'personal_id',
+                        'item_code',
+                        'item_name'
+                    );
+                }
+            ])
             ->joinSub($personal, 'personal', function ($join) {
                 $join->on('dmart_inpatient_list.personal_id', '=' , 'personal.personal_id');
             })
