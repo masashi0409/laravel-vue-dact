@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Log;
+use App\Models\CalcPatient;
 
 class Inpatient extends Model
 {
@@ -12,6 +12,10 @@ class Inpatient extends Model
     
     protected $table = 'dmart_inpatient_list';
     
+    public function calcPatient() {
+        return $this->hasMany(CalcPatient::class, 'personal_id', 'personal_id');
+    }
+
     public function scopeKeyDate($query, $keyDate)
     {
         return $query->where('dmart_inpatient_list.key_date', $keyDate);

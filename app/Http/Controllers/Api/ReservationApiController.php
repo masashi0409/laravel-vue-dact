@@ -51,6 +51,7 @@ class ReservationApiController extends Controller
         //     // Log::debug(print_r($result, true));
         //     Log::debug($result);   
         
+        $extractingDate = $request->extractingDate;
         $doctors = $request->doctors;
         $scene = $request->scene;
 
@@ -92,13 +93,14 @@ class ReservationApiController extends Controller
                 doctor_id,
                 doctor_name
             ')
-            ->with('diagnosis:personal_id,disease_name,primary_disease')
-            ->with(['calcPatient' =>
-                function($query) {
-                    $query->join('dmart_m_scenario_control', function($join) {
+            ->with('diagnosis:personal_id,disease_name,primary_disease') // Reservation(予約患者)とdiagnosis（病気）は1対多 withで取得する
+            ->with(['calcPatient' => // Reservation(予約患者)とCalcPatient（患者別算定状況）は1対多リレーション withで取得する
+                function($query) use($extractingDate) {
+                    $query->join('dmart_m_scenario_control', function($join) { // 患者別算定状況のシナリオ名を取得したいのでscenario_controlとjoin
                         $join->on('dmart_daily_calc_patient.scenariocontrol_sysid',
                         '=', 'dmart_m_scenario_control.scenario_control_sysid');
                     })
+                    ->where('dmart_daily_calc_patient.key_date', $extractingDate)
                     ->select(
                         'dmart_daily_calc_patient.*',
                         'dmart_m_scenario_control.scenario_control_sysid',

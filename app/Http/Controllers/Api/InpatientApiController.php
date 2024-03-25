@@ -69,6 +69,21 @@ class InpatientApiController extends Controller
                 doctor.doctor_id,
                 doctor_name
             ")
+            ->with(['calcPatient' =>
+                function($query) use ($extractingDate) {
+                    $query->join('dmart_m_scenario_control', function($join) {
+                        $join->on('dmart_daily_calc_patient.scenariocontrol_sysid',
+                        '=', 'dmart_m_scenario_control.scenario_control_sysid');
+                    })
+                    ->where('dmart_daily_calc_patient.key_date', $extractingDate)
+                    ->select(
+                        'dmart_daily_calc_patient.*',
+                        'dmart_m_scenario_control.scenario_control_sysid',
+                        'dmart_m_scenario_control.scenario_control_name',
+                        )
+                    ;
+                }
+            ])
             ->joinSub($personal, 'personal', function ($join) {
                 $join->on('dmart_inpatient_list.personal_id', '=' , 'personal.personal_id');
             })

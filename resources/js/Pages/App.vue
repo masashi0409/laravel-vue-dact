@@ -362,6 +362,7 @@ const getReservationData = async () => {
                 params: {
                     doctors: form.doctors,
                     scene: 'top',
+                    extractingDate: extractingDate,
                     // TODO 期間 当日～未来30日間？
                 },
             })

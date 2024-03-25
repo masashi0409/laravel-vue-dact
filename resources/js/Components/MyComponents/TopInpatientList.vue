@@ -30,22 +30,36 @@ watch(inpetientDatas, () => {
             section_name: d.section_name,
             ward: ward,
             doctor_name: d.doctor_name,
+            calc_patient: d.calc_patient,
         })
     })
 })
 
 const headers = [
-    { title: '入院日', align: 'start', key: 'admission_date', width: 200 },
-    { title: '入院日数', align: 'start', key: 'admission_count', width: 200 },
-    { title: '患者番号', align: 'center', key: 'personal_id', width: 200 },
-    { title: '患者名', align: 'center', key: 'full_name', width: 200 },
-    { title: '年齢', align: 'center', key: 'age', width: 200 },
-    { title: '診療科', align: 'center', key: 'section_name', width: 200 },
-    { title: '病室', align: 'center', key: 'ward', width: 200 },
-    { title: '医師', align: 'center', key: 'doctor_name', width: 200 },
-    { title: '指導・管理', align: 'center', key: '', width: 200 },
-    { title: '詳細', align: 'center', key: '', width: 200 },
+    { title: '入院日', align: 'start', key: 'admission_date' },
+    { title: '入院日数', align: 'start', key: 'admission_count' },
+    { title: '患者番号', align: 'center', key: 'personal_id' },
+    { title: '患者名', align: 'center', key: 'full_name' },
+    { title: '年齢', align: 'center', key: 'age' },
+    { title: '診療科', align: 'center', key: 'section_name' },
+    { title: '病室', align: 'center', key: 'ward' },
+    { title: '医師', align: 'center', key: 'doctor_name' },
+    {
+        title: '指導・管理',
+        align: 'start',
+        key: 'calc_patient',
+        sortable: false,
+    },
+    { title: '詳細', align: 'start', key: '', sortable: false },
 ]
+
+const actionCalcPatient = (e) => {
+    if (e.achievements_count > 0) {
+        return 'text-blue-darken-4'
+    } else {
+        return 'text-orange-darken-4'
+    }
+}
 </script>
 <template>
     <div class="text-h6 mb-4">
@@ -62,6 +76,30 @@ const headers = [
             :items="tableDatas"
             class="inpatient-table"
         >
+            <!-- 指導・管理 -->
+            <template v-slot:item.calc_patient="{ value }">
+                <template v-for="calcPatient in value">
+                    <v-sheet
+                        class="box"
+                        :class="actionCalcPatient(calcPatient)"
+                    >
+                        {{ calcPatient.scenario_control_name }}
+                        <v-icon
+                            color="green"
+                            v-if="calcPatient.achievements_count > 0"
+                        >
+                            mdi-check-bold
+                        </v-icon>
+                        <v-icon
+                            color="orange"
+                            v-if="calcPatient.achievements_count == 0"
+                        >
+                            mdi-exclamation
+                        </v-icon>
+                    </v-sheet>
+                </template>
+            </template>
+
             <template #bottom></template>
         </v-data-table>
     </div>

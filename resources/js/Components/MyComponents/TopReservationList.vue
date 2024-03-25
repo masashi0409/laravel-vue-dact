@@ -43,10 +43,6 @@ const actionCalcPatient = (e) => {
         return 'text-orange-darken-4'
     }
 }
-
-const clickunCalcIcon = (e) => {
-    console.log(e)
-}
 </script>
 
 <template>
@@ -89,13 +85,13 @@ const clickunCalcIcon = (e) => {
                         <v-icon
                             color="orange"
                             v-if="calcPatient.achievements_count == 0"
-                            @click="clickunCalcIcon(calcPatinet)"
                         >
                             mdi-exclamation
                         </v-icon>
                     </v-sheet>
                 </template>
             </template>
+
             <template #bottom></template>
         </v-data-table>
     </div>

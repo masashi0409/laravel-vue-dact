@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Reservation;
+use App\Models\Inpatient;
 
 /**
  * 患者別算定状況モデル
@@ -18,6 +19,10 @@ class CalcPatient extends Model
     
     public function reservations(){
         return $this->belongsTo(Reservation::class, 'personal_id', 'personal_id');
+    }
+
+    public function inpatients(){
+        return $this->belongsTo(Ipatient::class, 'personal_id', 'personal_id');
     }
     
     public function scopeKeyDate($query, $keyDate)
