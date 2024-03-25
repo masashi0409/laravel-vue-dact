@@ -75,13 +75,13 @@ class AppController extends Controller
         
         return Inertia::render('App', [
             'scenarios' => $scenarios,
-            'extractingDate' => $extractingDate[0]->extracting_date, // 最新更新日 2022-08-25
+            'extractingDate' => $dt->toDateString(), // 最新更新日 2022-08-25
             'startYearDate' => $fiscalYearStartDt, // 今年の開始日 月次年間の検索に使う 2021-01-01
             'startSubYearDate' => $startSubYearDate->toDateString(), // 1年前の同日 月次過去1年間の検索に使う 2021-08-25
             'monthDateLabels' => $monthDateLabels, // 今月の日付配列
             'thirtyDateLabels' => $thirtyDateLabels, // 過去30日の日付配列
             'yearMonthLabels' => $yearMonthLabels, // 今年の月配列
-            'subYearMonthLabels' => $subYearMonthLabels // 過去1年の月配列
+            'subYearMonthLabels' => $subYearMonthLabels, // 過去1年の月配列
         ]);
     }
 }

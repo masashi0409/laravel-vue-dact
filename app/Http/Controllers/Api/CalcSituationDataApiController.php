@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 use App\Models\Master\Scenario;
 use App\Models\CalcAchieve;
@@ -16,11 +17,18 @@ class CalcSituationDataApiController extends Controller
 {
     function index (Request $request)
     {
-        // Log::debug($request);
+        // Log::debug('calc situation data api');
+        // Log::debug($request->toDate);
         $scenarios = $request->scenarios;
         
         $fromDate = $request->fromDate;
         $toDate = $request->toDate;
+        // $toDate = '2022-08-23';
+
+        // 前日
+        $dt = Carbon::parse($toDate);
+        $prevDate = $dt->subDay()->toDateString();
+        // Log::debug($prevDate);
         
         // 算定実績を取得するサブクエリ
         $calcAchieve = CalcAchieve::
@@ -31,8 +39,19 @@ class CalcSituationDataApiController extends Controller
             ->betWeenDate($fromDate, $toDate)
             ->scenario($scenarios)
             ->groupBy('scenariocontrol_sysid');
-        
         // Log::debug($calcAchieve->get());
+
+        // 前日の算定実績を取得するサブクエリ
+        // TODO 月初なら0にする
+        $prevCalcAchieve = CalcAchieve::
+        selectRaw('
+        scenariocontrol_sysid as scenario_id
+        , count(*) as calc_archive_count
+        ')
+        ->betWeenDate($fromDate, $prevDate)
+        ->scenario($scenarios)
+        ->groupBy('scenariocontrol_sysid');
+        // Log::debug($prevCalcAchieve->get());
         
         // 算定状況の算定件数、未算定件数
         $calcStatusCount = CalcStatus::
@@ -45,6 +64,7 @@ class CalcSituationDataApiController extends Controller
             ->betWeenDate($fromDate, $toDate)
             ->scenario($scenarios)
             ->groupBy('scenario_id');
+        // Log::debug($calcStatusCount->get());
             
         // 上から算定率も取得
         $calcStatusCountRatio = DB::query()
@@ -58,18 +78,22 @@ class CalcSituationDataApiController extends Controller
         
         // まとめて取得
         $result = Scenario::
-        select(
-            'scenario_control_sysid',
-            'display_name',
-            'calc_archive_count',
-            'calc_count',
-            'uncalc_count',
-            'calc_ratio'
-            )
-        ->joinSub($calcAchieve, 'calc_archieve', function ($join) {
+        selectRaw('
+            scenario_control_sysid,
+            display_name,
+            calc_archieve.calc_archive_count,
+            calc_archieve.calc_archive_count - prev_calc_archieve.calc_archive_count as diffPrevArchiveCount, 
+            calc_count,
+            uncalc_count,
+            calc_ratio
+            ')
+        ->leftJoinSub($calcAchieve, 'calc_archieve', function ($join) {
             $join->on('dmart_m_scenario_control.scenario_control_sysid', '=', 'calc_archieve.scenario_id');
         })
-        ->joinSub($calcStatusCountRatio, 'calc_status_count_ratio', function ($join) {
+        ->leftJoinSub($prevCalcAchieve, 'prev_calc_archieve', function ($join) {
+            $join->on('dmart_m_scenario_control.scenario_control_sysid', '=', 'prev_calc_archieve.scenario_id');
+        })
+        ->leftJoinSub($calcStatusCountRatio, 'calc_status_count_ratio', function ($join) {
             $join->on('dmart_m_scenario_control.scenario_control_sysid', '=', 'calc_status_count_ratio.scenario_id');
         })
         ->whereIn('scenario_control_sysid', $scenarios)

@@ -1,5 +1,5 @@
 <script setup>
-import { computed } from 'vue'
+import { computed, ref, watch } from 'vue'
 
 const props = defineProps({
     data: Array,
@@ -13,7 +13,7 @@ const headers = [
         width: 500,
     },
     {
-        title: '算定実績',
+        title: '算定実績（前日比）',
         align: 'center',
         key: 'calc_archive_count',
         width: 150,
@@ -34,7 +34,19 @@ const headers = [
     },
 ]
 
-const tableDatas = computed(() => props.data)
+const calcSituationDatas = computed(() => props.data)
+const tableDatas = ref([])
+watch(calcSituationDatas, () => {
+    calcSituationDatas.value.forEach((d) => {
+        tableDatas.value.push({
+            display_name: d.display_name,
+            calc_archive_count: `${d.calc_archive_count} (+${d.diffPrevArchiveCount}件)`,
+            calc_count: d.calc_count,
+            uncalc_count: d.uncalc_count,
+            calc_ratio: d.calc_ratio,
+        })
+    })
+})
 </script>
 
 <template>

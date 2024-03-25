@@ -17,39 +17,9 @@ class ReservationApiController extends Controller
     function index (Request $request)
     {
         
-        Log::debug('reservation api index');
+        // Log::debug('reservation api index');
         // Log::debug($request->doctors);
-        // Log::debug($request->scene);
-
-        // withの確認
-        // $testSql = Reservation::
-        //     with('diagnosis:personal_id,disease_name')
-        //     ->where('personal_id', '03985357')
-        //     ->orderBy('reserved_datetime', 'asc');
-        // Log::debug($testSql->toSql());
-        // $result = $testSql->get();
-        // Log::debug(print_r($result, true));
-        // Log::debug($result);
-        
-        // $testSql = Reservation::
-        //     with(['calcPatient' =>
-        //         function($query) {
-        //             $query->join('dmart_m_scenario_control', function($join) {
-        //                 $join->on('dmart_daily_calc_patient.scenariocontrol_sysid',
-        //                 '=', 'dmart_m_scenario_control.scenario_control_sysid');
-        //             })
-        //             ->select(
-        //                 'dmart_daily_calc_patient.*',
-        //                 'dmart_m_scenario_control.scenario_control_sysid',
-        //                 'dmart_m_scenario_control.display_name',
-        //                 )
-        //             ;
-        //         }
-        //     ])
-        //     ->whereIn('personal_id', ['04011889', '03985357', '03963381']);
-        // $result = $testSql->get();
-        //     // Log::debug(print_r($result, true));
-        //     Log::debug($result);   
+        // Log::debug($request->scene);   
         
         $extractingDate = $request->extractingDate;
         $doctors = $request->doctors;
@@ -128,14 +98,6 @@ class ReservationApiController extends Controller
         if ($scene === 'top') {
             $data = $query->limit(5)->get();
         }
-        
-        // $data = Reservation::
-        //     selectRaw('personal_id, reserved_datetime, reserved_type')
-        //     ->orderBy('reserved_datetime', 'asc')
-        //     ->limit(5)->get();
-        
-        // Log::debug('reserved_list');
-        // Log::debug($data);
         
         return response()->json([
             'data' => $data,

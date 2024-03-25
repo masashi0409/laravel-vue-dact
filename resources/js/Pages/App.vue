@@ -341,6 +341,7 @@ const getCalcSituationData = async () => {
                 },
             })
             .then((res) => {
+                console.log('api calc situation data')
                 console.log(res)
                 calcSituationData.data = res.data.data
             })
@@ -350,7 +351,7 @@ const getCalcSituationData = async () => {
 }
 
 /**
- * 在院患者リスト取得
+ * 外来予約リスト取得
  */
 const reservationData = reactive({})
 const getReservationData = async () => {
@@ -366,8 +367,8 @@ const getReservationData = async () => {
             })
             .then((res) => {
                 reservationData.data = res.data.data
-                console.log('api get reservationData')
-                console.log(reservationData.data)
+                // console.log('api get reservationData')
+                // console.log(reservationData.data)
             })
     } catch (e) {
         console.log(e)
@@ -391,8 +392,8 @@ const getInpatientData = async () => {
             })
             .then((res) => {
                 inpatientData.data = res.data.data
-                console.log('api get inPatientData')
-                console.log(inpatientData.data)
+                // console.log('api get inPatientData')
+                // console.log(inpatientData.data)
             })
     } catch (e) {
         console.log(e)

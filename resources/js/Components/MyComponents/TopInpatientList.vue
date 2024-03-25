@@ -38,7 +38,7 @@ watch(inpetientDatas, () => {
 
 const headers = [
     { title: '入院日', align: 'start', key: 'admission_date' },
-    { title: '入院日数', align: 'start', key: 'admission_count' },
+    { title: '入院日数', align: 'start', key: 'inpatient_date' },
     { title: '患者番号', align: 'center', key: 'personal_id' },
     { title: '患者名', align: 'center', key: 'full_name' },
     { title: '年齢', align: 'center', key: 'age' },
