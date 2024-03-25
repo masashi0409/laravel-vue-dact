@@ -1,9 +1,9 @@
 <script setup>
 import { router } from '@inertiajs/vue3'
-import { computed, ref, watch } from "vue"
+import { computed, ref, watch } from 'vue'
 
 const props = defineProps({
-    data: Array
+    data: Array,
 })
 
 const clickLinkInpatient = () => {
@@ -45,20 +45,42 @@ const headers = [
     { title: '医師', align: 'center', key: 'doctor_name', width: 200 },
     { title: '指導・管理', align: 'center', key: '', width: 200 },
     { title: '詳細', align: 'center', key: '', width: 200 },
-];
+]
 </script>
 <template>
-    <div class="text-h6">
+    <div class="text-h6 mb-4">
         在院患者リスト
-        <v-btn icon="mdi-clipboard-list-outline" @click.prevent="clickLinkInpatient">
+        <v-btn
+            icon="mdi-clipboard-list-outline"
+            @click.prevent="clickLinkInpatient"
+        >
         </v-btn>
     </div>
     <div>
-        <v-data-table 
-        :headers="headers" 
-        :items="tableDatas"
+        <v-data-table
+            :headers="headers"
+            :items="tableDatas"
+            class="inpatient-table"
         >
             <template #bottom></template>
         </v-data-table>
     </div>
 </template>
+
+<style>
+.inpatient-table table th {
+    border: 1px solid #aaaaaa;
+    border-bottom: 1px solid #aaaaaa !important;
+    background-color: #1867c0;
+    color: white;
+    font-size: 0.875rem;
+}
+.inpatient-table table tr {
+    border: 1px #aaaaaa;
+}
+.inpatient-table table td {
+    border: 1px solid #aaaaaa;
+    border-bottom: 1px solid #aaaaaa !important;
+    font-size: 0.875rem;
+}
+</style>

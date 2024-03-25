@@ -402,14 +402,11 @@ const getInpatientData = async () => {
 </script>
 
 <template>
-    <Head title="Test Daily Act" />
+    <Head title="Top" />
     <AppLayout>
-        <v-container>
-            <div class="text-h5">Top</div>
-        </v-container>
-
         <!--検索-->
-        <v-container>
+        <v-container class="mt-4 mb-4">
+            <div class="text-h6">検索条件</div>
             <v-row>
                 <v-col>
                     <v-select
@@ -441,7 +438,7 @@ const getInpatientData = async () => {
 
         <!--算定状況-->
         <v-container>
-            <div class="text-h6">算定状況</div>
+            <div class="text-h5">算定状況</div>
         </v-container>
         <v-container>
             <v-row align="center" justify="center">
@@ -454,8 +451,9 @@ const getInpatientData = async () => {
                         <v-btn :class="{ 'disable-events': termType == 0 }">
                             日次
                         </v-btn>
-                        <!--<v-btn  :class="{ 'disable-events': termType == 1 }"> 月次</v-btn>-->
-                        <v-btn> 月次</v-btn>
+                        <v-btn :class="{ 'disable-events': termType == 1 }">
+                            月次</v-btn
+                        >
                     </v-btn-toggle>
                 </v-col>
                 <template v-if="termType == 0">

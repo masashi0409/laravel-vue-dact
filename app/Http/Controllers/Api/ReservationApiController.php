@@ -116,7 +116,6 @@ class ReservationApiController extends Controller
             ->leftJoinSub($doctor, 'doctor', function ($join) {
                 $join->on('dmart_reservation_list.reserved_doctor_id', '=', DB::raw('doctor.doctor_id COLLATE utf8mb4_general_ci'));
             })
-            ->where('dmart_reservation_list.personal_id', '04011889')
             ->orderBy('reserved_datetime', 'asc');
         
         $data = [];

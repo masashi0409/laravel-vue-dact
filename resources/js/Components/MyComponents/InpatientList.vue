@@ -1,8 +1,8 @@
 <script setup>
-import { computed, ref, watch } from "vue"
+import { computed, ref, watch } from 'vue'
 
 const props = defineProps({
-    data: Array
+    data: Array,
 })
 
 const inpetientDatas = computed(() => props.data)
@@ -18,7 +18,7 @@ watch(inpetientDatas, () => {
         if (d.ward_type) {
             ward = d.ward_code + `(${d.ward_type})`
         }
-        
+
         tableDatas.value.push({
             admission_date: d.admission_date,
             inpatient_date: d.inpatient_date,
@@ -43,16 +43,35 @@ const headers = [
     { title: '医師', align: 'center', key: 'doctor_name', width: 200 },
     { title: '指導・管理', align: 'center', key: '', width: 200 },
     { title: '詳細', align: 'center', key: '', width: 200 },
-];
+]
 </script>
 
 <template>
     <div>
-        <v-data-table 
-            :headers="headers" 
+        <v-data-table
+            :headers="headers"
             :items="tableDatas"
             items-per-page-text="表示行数"
+            class="inpatient-table"
         >
         </v-data-table>
     </div>
 </template>
+
+<style>
+.inpatient-table table th {
+    border: 1px solid #aaaaaa;
+    border-bottom: 1px solid #aaaaaa !important;
+    background-color: #1867c0;
+    color: white;
+    font-size: 0.875rem;
+}
+.inpatient-table table tr {
+    border: 1px #aaaaaa;
+}
+.inpatient-table table td {
+    border: 1px solid #aaaaaa;
+    border-bottom: 1px solid #aaaaaa !important;
+    font-size: 0.875rem;
+}
+</style>
