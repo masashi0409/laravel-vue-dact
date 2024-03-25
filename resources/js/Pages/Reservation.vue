@@ -4,6 +4,10 @@ import { reactive, ref, onMounted } from 'vue'
 import AppLayout from '@/Layouts/AppLayout.vue'
 import ReservationList from '@/Components/MyComponents/ReservationList.vue'
 
+const { extractingDate } = defineProps({
+    extractingDate: String,
+})
+
 onMounted(() => {
     getReservationData()
 })
@@ -29,6 +33,7 @@ const getReservationData = async () => {
                 params: {
                     doctors: form.selectedDoctors,
                     scene: form.scene,
+                    extractingDate: extractingDate,
                 },
             })
             .then((res) => {

@@ -75,7 +75,7 @@ const actionCalcPatient = (e) => {
                         class="box"
                         :class="actionCalcPatient(calcPatient)"
                     >
-                        {{ calcPatient.scenario_control_name }}
+                        {{ calcPatient.display_name }}
                         <v-icon
                             color="green"
                             v-if="calcPatient.achievements_count > 0"

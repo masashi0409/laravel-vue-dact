@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\Master;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -11,9 +11,10 @@ class Scenario extends Model
     use HasFactory;
     
     protected $table = 'dmart_m_scenario_control';
-    
-    public function scopeEnable($query)
-    {
-        return $query->where('dmart_m_scenario_control.enable_flg', 1);
+
+    public static function getScenarios() {
+        return Scenario::select('scenario_control_sysid', 'display_name')
+        ->orderBy('scenario_control_sysid', 'asc')
+        ->get();
     }
 }

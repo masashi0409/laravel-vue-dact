@@ -8,7 +8,7 @@ use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 
-use App\Models\Scenario;
+use App\Models\Master\Scenario;
 use App\Models\CalcAchieve;
 use App\Models\CalcStatus;
 
@@ -60,7 +60,7 @@ class CalcSituationDataApiController extends Controller
         $result = Scenario::
         select(
             'scenario_control_sysid',
-            'scenario_control_name',
+            'display_name',
             'calc_archive_count',
             'calc_count',
             'uncalc_count',

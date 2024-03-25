@@ -27,7 +27,7 @@ class CalcChartDataApiController extends Controller
             array_push($dataKeyDate, $keyDate->toDateString());
         }
         
-        $senarioLabels = $result->unique('scenariocontrol_sysid')->pluck('scenario_control_name', 'scenariocontrol_sysid'); //uniqueで重複削除、pluckで指定カラムだけの配列
+        $senarioLabels = $result->unique('scenariocontrol_sysid')->pluck('display_name', 'scenariocontrol_sysid'); //uniqueで重複削除、pluckで指定カラムだけの配列
 
         $datasets = [];
         // datasetsにlabelを入れる
@@ -82,7 +82,7 @@ class CalcChartDataApiController extends Controller
         
         $result = CalcAchieve::getTermMonthCalcChartData($request->scenarios, $request->fromDate, $request->toDate);
         
-        $scenarioLabels = $result->unique('scenariocontrol_sysid')->pluck('scenario_control_name', 'scenariocontrol_sysid'); //uniqueで重複削除、pluckで指定カラムだけの配列
+        $scenarioLabels = $result->unique('scenariocontrol_sysid')->pluck('display_name', 'scenariocontrol_sysid'); //uniqueで重複削除、pluckで指定カラムだけの配列
 
         $datasets = [];
         //senarioLabelを入れる
@@ -97,7 +97,7 @@ class CalcChartDataApiController extends Controller
         // 実績データをdatasetに詰めていく
         $result->each(function ($row) use ($monthLabels, &$datasets) {
             // Log::debug($row->scenariocontrol_sysid);
-            // Log::debug($row->scenario_control_name);
+            // Log::debug($row->display_name);
             // Log::debug($row->target_year);
             // Log::debug($row->target_month);
             // Log::debug($row->achievement_count);

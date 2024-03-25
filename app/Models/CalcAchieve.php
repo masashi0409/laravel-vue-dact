@@ -34,7 +34,7 @@ class CalcAchieve extends Model
         return CalcAchieve::
             selectRaw('
                 scenariocontrol_sysid
-                , scenario_control_name
+                , display_name
                 , key_date
                 , count(*) as santeicount
             ')
@@ -57,7 +57,7 @@ class CalcAchieve extends Model
         return CalcAchieve::
             selectRaw('
                 scenariocontrol_sysid
-                , scenario_control_name
+                , display_name
                 , target_year
                 , target_month
                 , count(*) as achievement_count

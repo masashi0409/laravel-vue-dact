@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Inertia\Inertia;
-use App\Models\Scenario;
+use App\Models\Master\Scenario;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
@@ -17,10 +17,7 @@ class ReservationController extends Controller
         // Log::debug('AppController');
         
         // シナリオマスタ取得
-        $scenarios = Scenario::selectRaw('scenario_control_sysid, scenario_control_name')
-        ->enable()
-        ->orderBy('sort_num', 'asc')
-        ->get();
+        $scenarios = Scenario::getScenarios();
         
         // 最新更新日取得
         $extractingDate = DB::select('

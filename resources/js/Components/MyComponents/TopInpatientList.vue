@@ -81,7 +81,7 @@ const actionCalcPatient = (e) => {
             <template v-slot:item.calc_patient="{ value }">
                 <template v-for="calcPatient in value">
                     <v-sheet :class="actionCalcPatient(calcPatient)">
-                        {{ calcPatient.scenario_control_name }}
+                        {{ calcPatient.display_name }}
                         <v-icon
                             color="green"
                             v-if="calcPatient.achievements_count > 0"

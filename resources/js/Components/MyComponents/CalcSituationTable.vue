@@ -9,7 +9,7 @@ const headers = [
     {
         title: 'シナリオ名',
         align: 'start',
-        key: 'scenario_control_name',
+        key: 'display_name',
         width: 500,
     },
     {

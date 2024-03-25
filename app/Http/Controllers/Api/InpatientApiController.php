@@ -79,7 +79,7 @@ class InpatientApiController extends Controller
                     ->select(
                         'dmart_daily_calc_patient.*',
                         'dmart_m_scenario_control.scenario_control_sysid',
-                        'dmart_m_scenario_control.scenario_control_name',
+                        'dmart_m_scenario_control.display_name',
                         )
                     ;
                 }

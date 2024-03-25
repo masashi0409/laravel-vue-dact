@@ -35,9 +35,7 @@ onMounted(() => {
     // シナリオマスタ取得
     scenarios.forEach((scenario, i) => {
         scenarios[i].label =
-            scenario.scenario_control_sysid +
-            ':' +
-            scenario.scenario_control_name
+            scenario.scenario_control_sysid + ':' + scenario.display_name
     })
 
     // 日付
@@ -490,7 +488,7 @@ const getInpatientData = async () => {
                                 class="w-28"
                                 :class="{ 'disable-events': monthType == 0 }"
                             >
-                                今年
+                                今年度
                             </v-btn>
                             <v-btn
                                 class="w-28"
