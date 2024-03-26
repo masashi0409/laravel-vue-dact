@@ -3,6 +3,7 @@ import { computed, ref, watch } from 'vue'
 
 const props = defineProps({
     data: Array,
+    borderMoney: Number,
 })
 
 const reservationDatas = computed(() => props.data)
@@ -28,7 +29,7 @@ const headers = [
         key: 'calc_patient',
         sortable: false,
     },
-    { title: '逆紹介', align: 'center', key: '' },
+    { title: '逆紹介', align: 'center', key: 'latest_point1' },
 ]
 
 const actionCalcPatient = (e) => {
@@ -55,11 +56,12 @@ const clickunCalcIcon = (e) => {
             <!-- 主病名 -->
             <template v-slot:item.diagnosis="{ value }">
                 <template v-for="disease in value">
-                    <div>
-                        {{ disease.disease_name }} {{ disease.primary_disease }}
+                    <div v-if="disease.primary_disease">
+                        {{ disease.disease_name }}
                     </div>
                 </template>
             </template>
+
             <!-- 指導・管理 -->
             <template v-slot:item.calc_patient="{ value }">
                 <template v-for="calcPatient in value">
@@ -83,6 +85,13 @@ const clickunCalcIcon = (e) => {
                         </v-icon>
                     </v-sheet>
                 </template>
+            </template>
+
+            <!-- 逆紹介 -->
+            <template v-slot:item.latest_point1="{ value }">
+                <v-icon color="blue-darken-2" v-if="value < props.borderMoney">
+                    mdi-check-bold
+                </v-icon>
             </template>
         </v-data-table>
     </v-container>

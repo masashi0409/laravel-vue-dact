@@ -11,6 +11,7 @@ import TopInpatientList from '@/Components/MyComponents/TopInpatientList.vue'
 
 // controllerから渡ってくる
 const {
+    borderMoney, // 逆紹介ボーダー金額
     scenarios,
     extractingDate, // 最新更新日 2022-08-25
     startYearDate, // 今年の開始日 2021-01-01 月次年間の検索に使う
@@ -20,6 +21,7 @@ const {
     yearMonthLabels, // 今年の月配列
     subYearMonthLabels, // 過去1年の月配列
 } = defineProps({
+    borderMoney: Number,
     scenarios: Array,
     extractingDate: String,
     startYearDate: String,
@@ -32,6 +34,7 @@ const {
 
 onMounted(() => {
     // console.log('onMounted')
+
     // シナリオマスタ取得
     scenarios.forEach((scenario, i) => {
         scenarios[i].label =
@@ -341,8 +344,8 @@ const getCalcSituationData = async () => {
                 },
             })
             .then((res) => {
-                console.log('api calc situation data')
-                console.log(res)
+                // console.log('api calc situation data')
+                // console.log(res)
                 calcSituationData.data = res.data.data
             })
     } catch (e) {
@@ -554,7 +557,10 @@ const getInpatientData = async () => {
 
         <!--Top外来予約リスト-->
         <v-container>
-            <TopReservationList :data="reservationData.data" />
+            <TopReservationList
+                :data="reservationData.data"
+                :border-money="borderMoney"
+            />
         </v-container>
 
         <!--Top在院患者リスト-->

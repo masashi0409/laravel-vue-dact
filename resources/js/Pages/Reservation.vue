@@ -4,7 +4,11 @@ import { reactive, ref, onMounted } from 'vue'
 import AppLayout from '@/Layouts/AppLayout.vue'
 import ReservationList from '@/Components/MyComponents/ReservationList.vue'
 
-const { extractingDate } = defineProps({
+const {
+    borderMoney, // 逆紹介ボーダー金額,
+    extractingDate,
+} = defineProps({
+    borderMoney: Number,
     extractingDate: String,
 })
 
@@ -71,7 +75,10 @@ const getReservationData = async () => {
 
         <!--外来予約リスト-->
         <v-container>
-            <ReservationList :data="reservationData.data" />
+            <ReservationList
+                :data="reservationData.data"
+                :border-money="borderMoney"
+            />
         </v-container>
     </AppLayout>
 </template>

@@ -77,7 +77,8 @@ class InpatientApiController extends Controller
                     })
                     ->where('dmart_daily_calc_patient.key_date', $extractingDate)
                     ->select(
-                        'dmart_daily_calc_patient.*',
+                        'dmart_daily_calc_patient.personal_id',
+                        'dmart_daily_calc_patient.achievements_count',
                         'dmart_m_scenario_control.scenario_control_sysid',
                         'dmart_m_scenario_control.display_name',
                         )

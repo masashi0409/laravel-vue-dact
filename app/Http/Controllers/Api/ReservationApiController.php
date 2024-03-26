@@ -61,7 +61,9 @@ class ReservationApiController extends Controller
                 section_name,
                 reserved_type,
                 doctor_id,
-                doctor_name
+                doctor_name,
+                latest_date1,
+                latest_point1
             ')
             ->with('diagnosis:personal_id,disease_name,primary_disease') // Reservation(予約患者)とdiagnosis（病気）は1対多 withで取得する
             ->with(['calcPatient' => // Reservation(予約患者)とCalcPatient（患者別算定状況）は1対多リレーション withで取得する
@@ -72,7 +74,8 @@ class ReservationApiController extends Controller
                     })
                     ->where('dmart_daily_calc_patient.key_date', $extractingDate)
                     ->select(
-                        'dmart_daily_calc_patient.*',
+                        'dmart_daily_calc_patient.personal_id',
+                        'dmart_daily_calc_patient.achievements_count',
                         'dmart_m_scenario_control.scenario_control_sysid',
                         'dmart_m_scenario_control.display_name',
                         )
