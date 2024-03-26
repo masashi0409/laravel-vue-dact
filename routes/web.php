@@ -7,6 +7,7 @@ use Inertia\Inertia;
 use App\Http\Controllers\AppController;
 use App\Http\Controllers\ReservationController;
 use App\Http\Controllers\InpatientController;
+use App\Http\Controllers\UserSettingController;
 
 /*
 |--------------------------------------------------------------------------
@@ -69,5 +70,10 @@ Route::get('/data-table-items', function () {
 })->middleware(['auth', 'verified'])->name('data-table-items');
 
 Route::get('/', [AppController::class, 'index'])->name('app');
+
 Route::get('/reservation', [ReservationController::class, 'index'])->name('resetvation');
+
 Route::get('/inpatient', [InpatientController::class, 'index'])->name('inpatient');
+
+// ユーザ設定（初期条件）
+Route::get('/user-setting', [UserSettingController::class, 'index'])->name('app');
