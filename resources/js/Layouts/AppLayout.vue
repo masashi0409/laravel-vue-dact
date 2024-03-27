@@ -31,19 +31,52 @@ const clickLink = (routeName) => {
 
         <v-navigation-drawer v-model="drawer">
             <v-list @click:select="clickLink">
-                <v-list-item title="トップページ" value="top"></v-list-item>
+                <v-list-item
+                    title="トップ"
+                    value="top"
+                    color="primary"
+                    variant="tonal"
+                >
+                    <template v-slot:prepend>
+                        <v-icon icon="mdi-home" color="primary"></v-icon>
+                    </template>
+                </v-list-item>
                 <v-list-item
                     title="ユーザ設定（初期条件）"
                     value="user-setting"
-                ></v-list-item>
+                    color="primary"
+                    variant="tonal"
+                >
+                    <template v-slot:prepend>
+                        <v-icon icon="mdi-cog" color="primary"></v-icon>
+                    </template>
+                </v-list-item>
                 <v-list-item
                     title="外来予約リスト"
                     value="reservation"
-                ></v-list-item>
+                    color="primary"
+                    variant="tonal"
+                >
+                    <template v-slot:prepend>
+                        <v-icon
+                            icon="mdi-clipboard-list-outline"
+                            color="primary"
+                        ></v-icon>
+                    </template>
+                </v-list-item>
                 <v-list-item
                     title="在院患者リスト"
                     value="inpatient"
-                ></v-list-item>
+                    color="primary"
+                    variant="tonal"
+                >
+                    <template v-slot:prepend>
+                        <v-icon
+                            icon="mdi-clipboard-list-outline"
+                            color="primary"
+                        ></v-icon>
+                    </template>
+                </v-list-item>
             </v-list>
         </v-navigation-drawer>
 
