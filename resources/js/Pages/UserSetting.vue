@@ -1,8 +1,10 @@
 <script setup>
-import { Head } from '@inertiajs/vue3'
+import { Head, router } from '@inertiajs/vue3'
+import { ref, reactive, onMounted } from 'vue'
+import axios from 'axios'
 import AppLayout from '@/Layouts/AppLayout.vue'
-import { ref, onMounted } from 'vue'
 import ScenarioDialog from '@/Components/MyComponents/ScenarioDialog.vue'
+import { convertArrayToString } from '@/common'
 
 // searchConditionからのデータ 設定済の検索条件
 const { searchConditionScenario, unSearchConditionScenario } = defineProps({
@@ -20,38 +22,50 @@ onMounted(() => {
     // console.log(editUnSearchScenario.value)
 })
 
-// dialog
 const senarioDialogFlg = ref(false)
 const scenario = ref('test')
 
 // シナリオsubmit
-// submitされたら保存用と表示用でシナリオを保持
+// submitされたら表示・保存用でシナリオを保持
 // DBからの値を表示していたものが、ダイアログからemitされた場合はそちらを表示する
-const onScenarioSubmit = (params) => {
+const onScenarioSubmit = (editingSearchScenario, editingUnsearchScenario) => {
+    // console.log('onScenarioSubmit')
     senarioDialogFlg.value = false
-    scenario.value = params.name
-    console.log(scenario.value)
+    // console.log(editingSearchScenario)
+    // console.log(editingUnsearchScenario)
+    editSearchScenario.value = editingSearchScenario
+    editUnSearchScenario.value = editingUnsearchScenario
 }
 
 const cancelScenarioDialog = () => {
     senarioDialogFlg.value = false
 }
 
-// 保存ボタンを押下 選択された各条件をseachConditionApiで保存
-const clickSave = () => {
-    console.log('click save')
+// 保存api用
+const form = reactive({
+    searchConditions: [], //画面で選択した新しい検索条件
+})
+// 保存ボタンを押下 選択された条件をseachConditionApiで保存
+const clickSave = async () => {
+    // console.log('click save')
+    form.searchConditions = [...editSearchScenario.value]
+    // console.log(form.searchConditions)
+    try {
+        await axios
+            .post('/api/update-search-condition', {
+                searchConditions: form.searchConditions,
+            })
+            .then((res) => {
+                console.log(res)
+                alert(res.data.message)
+            })
+    } catch (e) {
+        console.log(e)
+    }
 }
 
 const clickBack = () => {
-    console.log('click back')
-}
-
-const convertArrayToString = (objArr) => {
-    return objArr
-        .map((row) => {
-            return [row['name']]
-        })
-        .join(', ')
+    router.visit('/')
 }
 </script>
 
@@ -106,12 +120,25 @@ const convertArrayToString = (objArr) => {
                         </v-col>
                         <v-col cols="6" class="col-condition-value">
                             <v-sheet class="condition-value">
-                                {{ convertArrayToString(editSearchScenario) }}
-                                <v-tooltip activator="parent">
+                                <template v-if="editSearchScenario.length > 0">
                                     {{
                                         convertArrayToString(editSearchScenario)
                                     }}
-                                </v-tooltip>
+                                </template>
+                                <template
+                                    v-if="editSearchScenario.length === 0"
+                                >
+                                    すべての算定シナリオ
+                                </template>
+                                <template v-if="editSearchScenario.length > 0">
+                                    <v-tooltip activator="parent">
+                                        {{
+                                            convertArrayToString(
+                                                editSearchScenario
+                                            )
+                                        }}
+                                    </v-tooltip>
+                                </template>
                             </v-sheet>
                         </v-col>
                         <v-col cols="2"
@@ -167,15 +194,12 @@ const convertArrayToString = (objArr) => {
 }
 .condition-value {
     border: 1px solid #aaaaaa;
-    /* text-align: center; */
+    text-align: center;
     padding: 2px;
-
     /* オーバーした要素を非表示にする*/
     overflow: hidden;
-
     /* 改行を半角スペースに変換することで、1行にする */
     white-space: nowrap;
-
     /* オーバーしたテキストを３点リーダーにする */
     text-overflow: ellipsis;
 }

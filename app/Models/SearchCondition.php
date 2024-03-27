@@ -12,6 +12,11 @@ class SearchCondition extends Model
     
     protected $table = 'dmart_search_condition';
 
+    protected $primaryKey = 'search_id'; // primaryKey指定
+
+    const CREATED_AT = 'record_date'; // 登録日時カラム
+    const UPDATED_AT = 'update_date'; // 更新日時カラム
+
     public function searchConditionDetail() {
         return $this->hasMany(SearchConditionDetail::class, 'search_id', 'search_id');
     }
@@ -34,9 +39,23 @@ class SearchCondition extends Model
                     '=', 'dmart_m_scenario_control.scenario_control_sysid');
                 })
                 ->where('dmart_search_condition_detail.create_user', $userId)
-                ->where('dmart_search_condition_detail.search_type', $searchType);
+                ->where('dmart_search_condition_detail.search_type', $searchType)
+                ->orderBy('dmart_search_condition_detail.code', 'asc')
+                ;
             }])
             ->where('create_user', $userId)
             ->get();
+    }
+
+    // ユーザのsearchCondition取得
+    public static function getSearchIdByUserId($userId) {
+        return SearchCondition::select('search_id')->where('create_user', $userId)->first();
+    }
+
+    /**
+     * searchIdで削除
+     */
+    public static function deleteSearchCondition($searchId) {
+        SearchCondition::where('search_id', $searchId)->delete();
     }
 }

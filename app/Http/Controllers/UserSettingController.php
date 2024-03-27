@@ -28,7 +28,8 @@ class UserSettingController extends Controller
         foreach($resultSearchConditionScenario[0]->searchConditionDetail as $s) {
             $searchConditionScenario[] = [
                 'id' => $s->code,
-                'name' =>  $s->display_name
+                'name' =>  $s->display_name,
+                'type' => 4
             ];
         }
         // Log::debug($searchConditionScenario);
@@ -41,7 +42,8 @@ class UserSettingController extends Controller
                 // searchConditionにないからunSearchConditionに格納する
                 $unSearchConditionScenario[] = [
                     'id' => $masterScenario->scenario_control_sysid,
-                    'name' =>  $masterScenario->display_name
+                    'name' =>  $masterScenario->display_name,
+                    'type' => 4
                 ];
             }
         }

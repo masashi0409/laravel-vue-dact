@@ -9,12 +9,13 @@ const { editSearchScenario, editUnsearchScenario } = defineProps({
 const emit = defineEmits(['clickSubmit', 'clickCancel'])
 
 onMounted(() => {
-    console.log(editSearchScenario)
-    console.log(editUnsearchScenario)
+    // console.log(editSearchScenario)
+    // console.log(editUnsearchScenario)
 })
-
-// テーブルの設定
-const unSearchItemPerPage = ref(5)
+/**
+ * unsearchテーブルの設定・データ
+ */
+const unSearchItemPerPage = ref(10)
 const unSearchHeaders = [
     {
         title: '未選択算定シナリオ',
@@ -22,24 +23,80 @@ const unSearchHeaders = [
         key: 'name',
     },
 ]
-const search = ref()
+const filterUnsearch = ref()
+const unSearchItems = ref(editUnsearchScenario) // unsearchのシナリオテーブルデータ
+const selectedUnsearch = ref([]) // unsearchテーブルで選択されたもの
+// watch(selectedUnsearch, () => {
+//     console.log(selectedUnsearch.value)
+// })
 
-// unsearchのシナリオテーブルデータ
-const unSearchItems = ref(editUnsearchScenario)
+/**
+ * searchテーブルの設定
+ */
+const searchItemPerPage = ref(10)
+const searchHeaders = [
+    {
+        title: '選択算定シナリオ',
+        align: 'start',
+        key: 'name',
+    },
+]
+const filterSearch = ref()
+const searchItems = ref(editSearchScenario) // searchのシナリオテーブルデータ
+const selectedSearch = ref([]) // searchテーブルで選択されたもの
+// watch(selectedSearch, () => {
+//     console.log(selectedSearch.value)
+// })
 
-// unsearchテーブルで選択されたもの
-const selectedUnsearch = ref([])
-watch(selectedUnsearch, () => {
-    console.log(selectedUnsearch.value)
-})
+/**
+ * addボタン系
+ */
+// unsearchTableで選択されているものをsearchTableDataへ
+const addSearch = () => {
+    // console.log(selectedUnsearch.value)
+    selectedUnsearch.value.forEach((s) => {
+        // console.log(s)
+        let selectedScenario = unSearchItems.value.find((i) => i.id === s) // nameが必要なため
+        // searchItemsにaddする
+        searchItems.value.push(selectedScenario)
 
-// 保存ボタンを押したら親コンポーネントに選択したシナリオを送る
-const returnData = ref({
-    name: 'click scenario dialog ok',
-})
+        // unSearchから削除する
+        unSearchItems.value = unSearchItems.value.filter((i) => i.id !== s)
+    })
+    selectedUnsearch.value = []
+}
+
+const addAllSearch = () => {
+    searchItems.value = [...searchItems.value, ...unSearchItems.value]
+    unSearchItems.value = []
+}
+
+// searchTableDataで選択されているものをunsearchTableへ
+const addUnsearch = () => {
+    // console.log(selectedSearch.value)
+    selectedSearch.value.forEach((s) => {
+        let selectedScenario = searchItems.value.find((i) => i.id === s) // nameが必要なため
+        // unSearchItemsにaddする
+        unSearchItems.value.push(selectedScenario)
+
+        // searchから削除する
+        searchItems.value = searchItems.value.filter((i) => i.id !== s)
+    })
+    selectedSearch.value = []
+}
+
+const addAllUnSearch = () => {
+    unSearchItems.value = [...unSearchItems.value, ...searchItems.value]
+    searchItems.value = []
+}
+
+/**
+ * 選択ボタン submit
+ */
+// 選択ボタンを押したら親コンポーネントに選択したシナリオを送る
 
 const submit = () => {
-    emit('clickSubmit', returnData.value)
+    emit('clickSubmit', searchItems.value, unSearchItems.value)
 }
 
 const cancel = () => {
@@ -56,12 +113,12 @@ const cancel = () => {
                     <v-col cols="5">
                         <v-container class="left-table-container">
                             <v-text-field
-                                v-model="search"
+                                v-model="filterUnsearch"
                                 append-icon="mdi-magnify"
                                 label="検索"
                                 single-line
                                 hide-details
-                                class="unsearch-search-text m-2"
+                                class="filter-text m-2"
                             ></v-text-field>
 
                             <v-data-table
@@ -71,7 +128,7 @@ const cancel = () => {
                                 show-select
                                 v-model="selectedUnsearch"
                                 v-model:items-per-page="unSearchItemPerPage"
-                                :search="search"
+                                :search="filterUnsearch"
                                 class="unsearch-table search-table"
                             ></v-data-table>
                         </v-container>
@@ -79,12 +136,22 @@ const cancel = () => {
 
                     <v-col cols="2">
                         <div class="m-10 mt-32">
-                            <v-btn color="primary">>></v-btn>
+                            <v-btn color="primary" @click="addAllSearch"
+                                >>></v-btn
+                            >
                         </div>
-                        <div class="m-10"><v-btn color="primary">></v-btn></div>
-                        <div class="m-10"><v-btn color="primary"><</v-btn></div>
                         <div class="m-10">
-                            <v-btn color="primary"><<</v-btn>
+                            <v-btn color="primary" @click="addSearch">></v-btn>
+                        </div>
+                        <div class="m-10">
+                            <v-btn color="primary" @click="addUnsearch"
+                                ><</v-btn
+                            >
+                        </div>
+                        <div class="m-10">
+                            <v-btn color="primary" @click="addAllUnSearch"
+                                ><<</v-btn
+                            >
                         </div>
                     </v-col>
 
@@ -92,23 +159,23 @@ const cancel = () => {
                     <v-col cols="5">
                         <v-container class="right-table-container">
                             <v-text-field
-                                v-model="search"
+                                v-model="filterSearch"
                                 append-icon="mdi-magnify"
                                 label="検索"
                                 single-line
                                 hide-details
-                                class="unsearch-search-text m-2"
+                                class="filter-text m-2"
                             ></v-text-field>
 
                             <v-data-table
-                                :headers="unSearchHeaders"
-                                :items="unSearchItems"
+                                :headers="searchHeaders"
+                                :items="searchItems"
                                 item-value="id"
                                 show-select
-                                v-model="selectedUnsearch"
-                                v-model:items-per-page="unSearchItemPerPage"
-                                :search="search"
-                                class="unsearch-table search-table"
+                                v-model="selectedSearch"
+                                v-model:items-per-page="searchItemPerPage"
+                                :search="filterSearch"
+                                class="search-table"
                             ></v-data-table>
                         </v-container>
                     </v-col>
@@ -125,23 +192,29 @@ const cancel = () => {
 
 <style scoped>
 .left-table-container {
-    height: 600px;
+    /* height: 500px; */
     margin: 30px;
     margin-left: 100px;
 }
 .right-table-container {
-    height: 600px;
+    /* height: 500px; */
     margin: 30px;
 }
-.unsearch-table {
-    width: 400px;
-}
-.unsearch-search-text {
+
+.filter-text {
     max-width: 375px;
+}
+
+/* テーブルrow高さ */
+.v-table--density-default {
+    --v-table-row-height: 36px;
 }
 </style>
 
 <style>
+.search-table {
+    width: 400px;
+}
 .search-table table th {
     border: 1px solid #aaaaaa;
     border-bottom: 1px solid #aaaaaa !important;

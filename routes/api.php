@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\CalcChartDataApiController;
 use App\Http\Controllers\Api\CalcSituationDataApiController;
 use App\Http\Controllers\Api\ReservationApiController;
 use App\Http\Controllers\Api\InpatientApiController;
+use App\Http\Controllers\Api\SearchConditionApiController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -47,7 +48,9 @@ get('/reservations', [ReservationApiController::class, 'index'])
 ->name('api.reservations');
 // 在院患者リスト
 Route::
-    // middleware('auth:sanctum')
-// ->
 get('/inpatients', [InpatientApiController::class, 'index'])
 ->name('api.inpatients');
+
+Route::
+post('/update-search-condition', [SearchConditionApiController::class, 'updateSearchCondition'])
+->name('api.update-search-condition');
