@@ -8,11 +8,15 @@ import AppLayout from '@/Layouts/AppLayout.vue'
 import CalcSituationTable from '@/Components/MyComponents/CalcSituationTable.vue'
 import TopReservationList from '@/Components/MyComponents/TopReservationList.vue'
 import TopInpatientList from '@/Components/MyComponents/TopInpatientList.vue'
+import ScenarioDialog from '@/Components/MyComponents/ScenarioDialog.vue'
+import { convertArrayToString } from '@/common'
 
 // controllerから渡ってくる
 const {
     borderMoney, // 逆紹介ボーダー金額
     scenarios,
+    searchConditionScenario, // 初期検索条件算定シナリオ
+    unSearchConditionScenario,
     extractingDate, // 最新更新日 2022-08-25
     startYearDate, // 今年の開始日 2021-01-01 月次年間の検索に使う
     startSubYearDate, // 1年前の同日 月次過去1年間の検索に使う 2021-08-25
@@ -23,6 +27,8 @@ const {
 } = defineProps({
     borderMoney: Number,
     scenarios: Array,
+    searchConditionScenario: Array,
+    unSearchConditionScenario: Array,
     extractingDate: String,
     startYearDate: String,
     startSubYearDate: String,
@@ -33,13 +39,16 @@ const {
 })
 
 onMounted(() => {
-    // console.log('onMounted')
+    // console.log('App onMounted')
 
     // シナリオマスタ取得
     scenarios.forEach((scenario, i) => {
         scenarios[i].label =
             scenario.scenario_control_sysid + ':' + scenario.display_name
     })
+
+    // 検索初期条件を検索条件に設定
+    form.scenarios = searchConditionScenario.map((i) => i['id'])
 
     // 日付
     fromDate.value = monthDateLabels[0]
@@ -62,7 +71,22 @@ onMounted(() => {
     getInpatientData()
 })
 
-// 検索
+// 検索条件
+const searchScenario = ref(searchConditionScenario) // 算定シナリオ検索条件
+const unSearchScenario = ref(unSearchConditionScenario)
+// シナリオsubmit
+const onScenarioSubmit = (editingSearchScenario, editingUnsearchScenario) => {
+    senarioDialogFlg.value = false
+    searchScenario.value = editingSearchScenario
+    unSearchScenario.value = editingUnsearchScenario
+
+    form.scenarios = searchScenario.value.map((i) => i['id'])
+}
+const cancelScenarioDialog = () => {
+    senarioDialogFlg.value = false
+}
+
+/** 検索ボタン */
 const clickSearchButton = () => {
     if (termType.value === 0) {
         getCalcChartData()
@@ -80,15 +104,17 @@ const fromDate = ref('') // 検索用開始日、終了日
 const toDate = ref('')
 const labels = ref([])
 
-const doctors = [
-    { id: '001238', name: 'テスト医師1238' },
-    { id: '001150', name: 'doctor_001150' },
-]
+/**
+ * 検索ダイアログ
+ */
+const senarioDialogFlg = ref(false)
 
-// 検索条件form params
+/**
+ * 検索条件のparams
+ */
 const form = reactive({
-    doctors: [],
-    scenarios: ['91401', '91402', '91405', '91408', '91416'],
+    doctors: [], // 医師ID
+    scenarios: [], // 算定シナリオID
 })
 
 /**
@@ -408,36 +434,60 @@ const getInpatientData = async () => {
     <Head title="Top" />
     <AppLayout>
         <!--検索-->
-        <v-container class="mt-4 mb-4">
+        <v-container class="mt-4 mb-4 search-container">
             <div class="text-h6">検索条件</div>
-            <v-row>
+
+            <v-row class="mb-4">
                 <v-col>
-                    <v-select
-                        clearable
-                        label="医師"
-                        v-model="form.doctors"
-                        :items="doctors"
-                        item-title="name"
-                        item-value="id"
-                        multiple
-                    ></v-select>
+                    <div>医師</div>
+                    <v-sheet class="top-condition-value"> test </v-sheet>
                 </v-col>
                 <v-col>
-                    <v-select
-                        clearable
-                        label="シナリオ"
-                        v-model="form.scenarios"
-                        :items="scenarios"
-                        item-title="label"
-                        item-value="scenario_control_sysid"
-                        multiple
+                    <div>診療科</div>
+                    <v-sheet class="top-condition-value"> test </v-sheet>
+                </v-col>
+                <v-col>
+                    <div>病棟</div>
+                    <v-sheet class="top-condition-value"> test </v-sheet>
+                </v-col>
+                <v-col>
+                    <div>算定シナリオ</div>
+                    <v-sheet
+                        class="top-condition-value"
+                        @click.stop="senarioDialogFlg = true"
                     >
-                    </v-select>
+                        <template v-if="searchScenario.length > 0">
+                            {{ convertArrayToString(searchScenario) }}
+                        </template>
+                        <template v-if="searchScenario.length === 0">
+                            すべての算定シナリオ
+                        </template>
+                        <template v-if="searchScenario.length > 0">
+                            <v-tooltip activator="parent">
+                                {{ convertArrayToString(searchScenario) }}
+                            </v-tooltip>
+                        </template>
+                    </v-sheet>
                 </v-col>
             </v-row>
 
-            <v-btn elevation="2" @click="clickSearchButton">検索</v-btn>
+            <div class="d-flex">
+                <v-spacer></v-spacer>
+                <v-btn elevation="2" color="primary" @click="clickSearchButton"
+                    >検索</v-btn
+                >
+            </div>
         </v-container>
+
+        <!-- シナリオダイアログ -->
+        <v-dialog v-model="senarioDialogFlg">
+            <ScenarioDialog
+                :editSearchScenario="searchScenario"
+                :editUnsearchScenario="unSearchScenario"
+                @clickSubmit="onScenarioSubmit"
+                @clickCancel="cancelScenarioDialog"
+            />
+        </v-dialog>
 
         <!--算定状況-->
         <v-container>
@@ -570,8 +620,22 @@ const getInpatientData = async () => {
     </AppLayout>
 </template>
 
-<style>
+<style scope>
 .disable-events {
     pointer-events: none;
+}
+
+.search-container {
+    border: 1px solid #aaaaaa;
+}
+
+.top-condition-value {
+    max-width: 300px;
+    border: 1px solid #aaaaaa;
+    text-align: center;
+    padding: 2px;
+    overflow: hidden; /* オーバーした要素を非表示にする*/
+    white-space: nowrap; /* 改行を半角スペースに変換することで、1行にする */
+    text-overflow: ellipsis; /* オーバーしたテキストを３点リーダーにする */
 }
 </style>

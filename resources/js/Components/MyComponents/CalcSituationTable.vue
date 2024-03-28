@@ -37,6 +37,7 @@ const headers = [
 const calcSituationDatas = computed(() => props.data)
 const tableDatas = ref([])
 watch(calcSituationDatas, () => {
+    tableDatas.value = []
     calcSituationDatas.value.forEach((d) => {
         tableDatas.value.push({
             display_name: d.display_name,

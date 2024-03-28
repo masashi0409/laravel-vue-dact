@@ -10,20 +10,53 @@ use Carbon\CarbonPeriod;
 use Illuminate\Support\Facades\Log;
 use App\Models\Master\Scenario;
 use App\Models\Master\Hospital;
+use App\Models\SearchCondition;
 
 class AppController extends Controller
 {
     public function index()
     {
         // Log::debug('AppController');
+        // TODO ユーザID取得
+        $userId = '1';
 
-        // 施設ID設定読み込み
+        // 施設ID設定読み込み　//TODO ログインユーザ情報から取得
         $hospitalId = config('hospital.hospital_id');
         // 施設情報取得
         $hospital = Hospital::where('hpid', $hospitalId)->first();
 
         // シナリオマスタ取得
-        $scenarios = Scenario::getScenarios();
+        $masterScenarios = Scenario::getScenarios();
+
+        /**
+         * 初期検索条件 searchCondition
+         */
+        // 初期検索条件 searchCondition取得
+        $searchCondition = SearchCondition::where('create_user', $userId)->get();
+
+        $searchConditionScenario = [];
+        if (count($searchCondition) > 0) {
+            $resultSearchConditionScenario = SearchCondition::getSearchConditionByType($userId, 4);
+            foreach($resultSearchConditionScenario[0]->searchConditionDetail as $s) {
+                $searchConditionScenario[] = [
+                    'id' => $s->code,
+                    'name' =>  $s->display_name,
+                    'type' => 4
+                ];
+            }
+        }        // unSearchCondition（選択画面の左側のリスト）も作成しておく
+        $unSearchConditionScenario = [];
+        foreach($masterScenarios as $masterScenario) {
+            $keyIndex = array_search($masterScenario->scenario_control_sysid, array_column($searchConditionScenario, 'id'));
+            if ($keyIndex === false) {
+                // searchConditionにないからunSearchConditionに格納する
+                $unSearchConditionScenario[] = [
+                    'id' => $masterScenario->scenario_control_sysid,
+                    'name' =>  $masterScenario->display_name,
+                    'type' => 4
+                ];
+            }
+        }
 
         /**
          * 日付・期間系取得
@@ -84,7 +117,9 @@ class AppController extends Controller
         
         return Inertia::render('App', [
             'borderMoney' => $hospital->border_money, // 逆紹介ボーダー金額
-            'scenarios' => $scenarios,
+            'scenarios' => $masterScenarios,
+            'searchConditionScenario' => $searchConditionScenario, // 初期検索条件算定シナリオ
+            'unSearchConditionScenario' => $unSearchConditionScenario,
             'extractingDate' => $dt->toDateString(), // 最新更新日 2022-08-25
             'startYearDate' => $fiscalYearStartDt, // 今年の開始日 月次年間の検索に使う 2021-01-01
             'startSubYearDate' => $startSubYearDate->toDateString(), // 1年前の同日 月次過去1年間の検索に使う 2021-08-25

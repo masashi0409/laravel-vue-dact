@@ -23,7 +23,6 @@ onMounted(() => {
 })
 
 const senarioDialogFlg = ref(false)
-const scenario = ref('test')
 
 // シナリオsubmit
 // submitされたら表示・保存用でシナリオを保持
