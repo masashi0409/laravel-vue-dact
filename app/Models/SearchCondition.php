@@ -17,6 +17,11 @@ class SearchCondition extends Model
     const CREATED_AT = 'record_date'; // 登録日時カラム
     const UPDATED_AT = 'update_date'; // 更新日時カラム
 
+    protected $fillable = [
+        'enable_flg',
+        'create_user',
+    ];
+
     public function searchConditionDetail() {
         return $this->hasMany(SearchConditionDetail::class, 'search_id', 'search_id');
     }

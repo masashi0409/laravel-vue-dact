@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 
 use App\Models\Master\Scenario;
 use App\Models\SearchCondition;
@@ -17,9 +18,35 @@ class UserSettingController extends Controller
         // TODO ユーザID取得
         $userId = '1';
 
+        /**
+         * 各マスタ取得
+         */
         // シナリオマスタ取得
         $masterScenarios = Scenario::getScenarios();
         // Log::debug($scenarios);
+
+        /**
+         * searchCondtion
+         */
+        // userのsearchCondtionが無かったら作成する
+        $searchCondition = SearchCondition::where('create_user', $userId)->get();
+        Log::debug($searchCondition);
+
+        if (count($searchCondition) === 0) {
+            DB::beginTransaction();
+            try{
+                $searchCondtion = SearchCondition::create([
+                    'enable_flg' => true,
+                    'create_user' => $userId,
+                ]);
+                DB::commit();
+                Log::debug($userId . 'searchConditionを作成しました。');
+                Log::debug($searchCondtion);
+            } catch (\Exception $e) {
+                DB::rollback();
+                Log::debug($e);
+            }
+        }
 
         // シナリオのsearchCondition取得
         $searchConditionScenario = [];
