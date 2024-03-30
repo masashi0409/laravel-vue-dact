@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Log;
 use App\Models\Master\Scenario;
 use App\Models\Master\Hospital;
 use App\Models\SearchCondition;
+use App\Models\ProcessManagement;
 
 class AppController extends Controller
 {
@@ -62,31 +63,29 @@ class AppController extends Controller
          * 日付・期間系取得
          */
         // 最新更新日取得
-        $extractingDate = DB::select('
-            select
-                max(extracting_date) as extracting_date 
-            from
-            dmart_process_management
-        ');
-        
+        $processManagement = ProcessManagement::getFirstExtractingDate();
         // Log::debug(print_r($extractingDate[0]->extracting_date, true)); // 2022-08-25
-        $dt = Carbon::parse($extractingDate[0]->extracting_date); // 2022-08-25 00:00:00
+        $extractingDate = $processManagement->extracting_date;
+        $dt = Carbon::parse($processManagement->extracting_date); // 2022-08-25 00:00:00
         $year = $dt->year; // 2022
         $month = $dt->month; // 8
         $day = $dt->day; // 25 TODO: うるう年は考慮必要
         $lastYear = $year - 1;
-        
+        $lastMonth = $month - 1;
+
+        $prevDate = $prevDate = $dt->copy()->subDay()->toDateString(); // 前日 2022-08-24 TODO 前日がない初日は考慮必要
+        $prevMonthDate = Carbon::parse($year . '-' .  $lastMonth . '-' . $day)->toDateString();// 先月同日 2022-07-25 //TODO月末の場合あふれ考慮必要
+ 
         // 今月・過去30日
         $firstDate = $dt->copy()->startOfMonth()->toDateString(); // 今月の始まり
         $lastDate = $dt->copy()->endOfMonth()->toDateString(); // 今月の終わり
         $sub30Date = $dt->copy()->subDay(30)->toDateString(); // 30日前
         $monthDates = CarbonPeriod::create($firstDate, $lastDate)->toArray();
-        $thirtyDates = CarbonPeriod::create($sub30Date, $dt->toDateString())->toArray();
+        $thirtyDates = CarbonPeriod::create($sub30Date, $extractingDate)->toArray();
         $monthDateLabels = [];
         $thirtyDateLabels = [];
         foreach($monthDates as $date) { array_push($monthDateLabels, $date->format('Y-m-d')); }
         foreach($thirtyDates as $date) { array_push($thirtyDateLabels, $date->format('Y-m-d')); }
-        
         
         // 今年度・過去1年
         // 年度を取得
@@ -99,8 +98,8 @@ class AppController extends Controller
         // $firstMonth = $dt->copy()->startOfYear()->toDateString();
         // $lastMonth = $dt->copy()->endOfYear()->toDateString();
 
-        $subYearMonth =  new Carbon($lastYear . '-' . $month);// 1年前の同月
-        $startSubYearDate = new Carbon($lastYear . '-' . $month . '-' . $day); // 1年前の同日 月次過去1年間の検索に使う // 2021-08-25
+        $subYearMonth =  Carbon::parse($lastYear . '-' . $month)->toDateString();// 1年前の同月
+        $startSubYearDate = Carbon::parse($lastYear . '-' . $month . '-' . $day)->toDateString(); // 1年前の同日 月次過去1年間の検索に使う // 2021-08-25
         
         // 年度の月リスト
         $yearMonths = CarbonPeriod::create($fiscalYearStartDt, $fiscalYearEndDt)->months()->toArray();
@@ -108,7 +107,7 @@ class AppController extends Controller
         foreach($yearMonths as $month) { array_push($yearMonthLabels, $month->format('Y-m')); }
         
         // 過去1年の月リスト
-        $subYearMonths = CarbonPeriod::create($subYearMonth->toDateString(), $dt->toDateString())->months()->toArray();
+        $subYearMonths = CarbonPeriod::create($subYearMonth, $extractingDate)->months()->toArray();
         $subYearMonthLabels = [];
         foreach($subYearMonths as $month) { array_push($subYearMonthLabels, $month->format('Y-m')); }
         // Log::debug($subYearMonthLabels);
@@ -120,9 +119,11 @@ class AppController extends Controller
             'scenarios' => $masterScenarios,
             'searchConditionScenario' => $searchConditionScenario, // 初期検索条件算定シナリオ
             'unSearchConditionScenario' => $unSearchConditionScenario,
-            'extractingDate' => $dt->toDateString(), // 最新更新日 2022-08-25
+            'extractingDate' => $extractingDate, // 最新更新日 2022-08-25
+            'prevDate' => $prevDate,
+            'prevMonthDate' => $prevMonthDate, // 先月同日 2022-07-25
             'startYearDate' => $fiscalYearStartDt, // 今年の開始日 月次年間の検索に使う 2021-01-01
-            'startSubYearDate' => $startSubYearDate->toDateString(), // 1年前の同日 月次過去1年間の検索に使う 2021-08-25
+            'startSubYearDate' => $startSubYearDate, // 1年前の同日 月次過去1年間の検索に使う 2021-08-25
             'monthDateLabels' => $monthDateLabels, // 今月の日付配列
             'thirtyDateLabels' => $thirtyDateLabels, // 過去30日の日付配列
             'yearMonthLabels' => $yearMonthLabels, // 今年の月配列

@@ -18,6 +18,8 @@ const {
     searchConditionScenario, // 初期検索条件算定シナリオ
     unSearchConditionScenario,
     extractingDate, // 最新更新日 2022-08-25
+    prevDate,
+    prevMonthDate, // 先月同日 2022-07-25
     startYearDate, // 今年の開始日 2021-01-01 月次年間の検索に使う
     startSubYearDate, // 1年前の同日 月次過去1年間の検索に使う 2021-08-25
     monthDateLabels, // 今月の日付配列
@@ -30,6 +32,8 @@ const {
     searchConditionScenario: Array,
     unSearchConditionScenario: Array,
     extractingDate: String,
+    prevDate: String,
+    prevMonthDate: String,
     startYearDate: String,
     startSubYearDate: String,
     monthDateLabels: Array,
@@ -356,7 +360,7 @@ const updateCalcChart = () => {
 }
 
 /**
- * 算定状況テーブルデータ取得
+ * 算定状況（当月状況）データ取得
  */
 const calcSituationData = reactive({})
 const getCalcSituationData = async () => {
@@ -367,11 +371,14 @@ const getCalcSituationData = async () => {
                     scenarios: form.scenarios,
                     fromDate: monthDateLabels[0], // 今月の開始
                     toDate: extractingDate, // extractingDate
+                    prevDate: prevDate,
+                    prevMonthDate: prevMonthDate,
+                    prevYearDate: startSubYearDate,
                 },
             })
             .then((res) => {
-                // console.log('api calc situation data')
-                // console.log(res)
+                console.log('api calc situation data')
+                console.log(res)
                 calcSituationData.data = res.data.data
             })
     } catch (e) {
