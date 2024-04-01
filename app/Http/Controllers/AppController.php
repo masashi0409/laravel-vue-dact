@@ -46,7 +46,8 @@ class AppController extends Controller
                     'type' => 4
                 ];
             }
-        } // unSearchCondition（選択画面の左側のリスト）も作成しておく
+        }
+        // unSearchCondition（選択画面の左側のリスト）も作成しておく
         $unSearchConditionScenario = [];
         foreach($masterScenarios as $masterScenario) {
             $keyIndex = array_search($masterScenario->scenario_control_sysid, array_column($searchConditionScenario, 'id'));
@@ -118,7 +119,7 @@ class AppController extends Controller
         
         return Inertia::render('App', [
             'borderMoney' => $hospital->border_money, // 逆紹介ボーダー金額
-            'masterScenarios' => $masterScenarios,
+            'masterScenario' => $masterScenarios,
             'searchConditionScenario' => $searchConditionScenario, // 初期検索条件算定シナリオ
             'unSearchConditionScenario' => $unSearchConditionScenario,
             'extractingDate' => $extractingDate, // 最新更新日 2022-08-25

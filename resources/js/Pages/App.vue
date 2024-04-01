@@ -4,18 +4,16 @@ import { reactive, ref, onMounted, watch } from 'vue'
 import { Chart, registerables } from 'chart.js'
 import { LineChart } from 'vue-chart-3'
 
-import { convertArrayToString } from '@/common'
 import AppLayout from '@/Layouts/AppLayout.vue'
+import SearchCondition from '@/Components/MyComponents/SearchCondition.vue'
 import CalcSituationTable from '@/Components/MyComponents/CalcSituationTable.vue'
 import TopReservationList from '@/Components/MyComponents/TopReservationList.vue'
 import TopInpatientList from '@/Components/MyComponents/TopInpatientList.vue'
-import SelectScenarioDialog from '@/Components/MyComponents/SelectScenarioDialog.vue'
-import InitialSearchConditionDialog from '@/Components/MyComponents/InitialSearchConditionDialog.vue'
 
 // controllerから渡ってくる
 const {
     borderMoney, // 逆紹介ボーダー金額
-    masterScenarios,
+    masterScenario,
     searchConditionScenario, // 初期検索条件算定シナリオ
     unSearchConditionScenario,
     extractingDate, // 最新更新日 2022-08-25
@@ -29,7 +27,7 @@ const {
     subYearMonthLabels, // 過去1年の月配列
 } = defineProps({
     borderMoney: Number,
-    masterScenarios: Array,
+    masterScenario: Array,
     searchConditionScenario: Array,
     unSearchConditionScenario: Array,
     extractingDate: String,
@@ -73,19 +71,15 @@ onMounted(() => {
 // 検索条件
 const searchScenario = ref(searchConditionScenario) // 算定シナリオ検索条件
 const unSearchScenario = ref(unSearchConditionScenario)
-// シナリオダイアログsubmit
-const onScenarioSubmit = (editingSearchScenario) => {
-    console.log(masterScenarios)
-    console.log(searchScenario.value)
-    console.log(editingSearchScenario)
+// 検索条件コンポーネントからシナリオ変更のemitを受ける
+const changeSearchScenario = (editSearchScenario) => {
+    console.log('reservation edit search scenario')
+    console.log(editSearchScenario)
 
-    senarioDialogFlg.value = false
-
-    // searchScenario、unsearchScenario作成しなおし
     searchScenario.value = []
     unSearchScenario.value = []
-    masterScenarios.forEach((scenario) => {
-        if (editingSearchScenario.includes(scenario.scenario_control_sysid)) {
+    masterScenario.forEach((scenario) => {
+        if (editSearchScenario.includes(scenario.scenario_control_sysid)) {
             searchScenario.value.push({
                 id: scenario.scenario_control_sysid,
                 name: scenario.display_name,
@@ -100,8 +94,9 @@ const onScenarioSubmit = (editingSearchScenario) => {
         }
     })
 
-    form.scenarios = editingSearchScenario
+    form.scenarios = editSearchScenario
 }
+
 const cancelScenarioDialog = () => {
     senarioDialogFlg.value = false
 }
@@ -458,74 +453,14 @@ const initialSearchConditionDialogFlg = ref(false)
 <template>
     <Head title="Top" />
     <AppLayout>
-        <!--検索-->
-        <v-container class="mt-4 mb-4 search-container">
-            <div class="text-h6">検索条件</div>
-
-            <v-btn
-                density="compact"
-                icon="mdi-cog"
-                @click="initialSearchConditionDialogFlg = true"
-            ></v-btn>
-            <v-dialog v-model="initialSearchConditionDialogFlg">
-                <InitialSearchConditionDialog
-                    :searchConditionScenario="searchScenario"
-                    :unSearchConditionScenario="unSearchScenario"
-                    @clickCancel="initialSearchConditionDialogFlg = false"
-                />
-            </v-dialog>
-
-            <v-row class="mb-4">
-                <v-col>
-                    <div>医師</div>
-                    <v-sheet class="top-condition-value"> test </v-sheet>
-                </v-col>
-                <v-col>
-                    <div>診療科</div>
-                    <v-sheet class="top-condition-value"> test </v-sheet>
-                </v-col>
-                <v-col>
-                    <div>病棟</div>
-                    <v-sheet class="top-condition-value"> test </v-sheet>
-                </v-col>
-                <v-col>
-                    <div>算定シナリオ</div>
-                    <v-sheet
-                        class="top-condition-value"
-                        @click.stop="senarioDialogFlg = true"
-                    >
-                        <template v-if="searchScenario.length > 0">
-                            {{ convertArrayToString(searchScenario) }}
-                        </template>
-                        <template v-if="searchScenario.length === 0">
-                            すべての算定シナリオ
-                        </template>
-                        <template v-if="searchScenario.length > 0">
-                            <v-tooltip activator="parent">
-                                {{ convertArrayToString(searchScenario) }}
-                            </v-tooltip>
-                        </template>
-                    </v-sheet>
-                </v-col>
-            </v-row>
-
-            <div class="d-flex">
-                <v-spacer></v-spacer>
-                <v-btn elevation="2" color="primary" @click="clickSearchButton"
-                    >検索</v-btn
-                >
-            </div>
-        </v-container>
-
-        <!-- シナリオダイアログ -->
-        <v-dialog v-model="senarioDialogFlg">
-            <SelectScenarioDialog
-                :masterScenarios="masterScenarios"
-                :editSearchScenario="searchScenario"
-                @clickSubmit="onScenarioSubmit"
-                @clickCancel="cancelScenarioDialog"
-            />
-        </v-dialog>
+        <!-- 検索コンポーネント -->
+        <SearchCondition
+            :searchScenario="searchScenario"
+            :unSearchScenario="unSearchScenario"
+            :masterScenario="masterScenario"
+            @emitSearchScenario="changeSearchScenario"
+            @clickSearchButton="clickSearchButton"
+        />
 
         <!--算定状況-->
         <v-container>
@@ -661,19 +596,5 @@ const initialSearchConditionDialogFlg = ref(false)
 <style scope>
 .disable-events {
     pointer-events: none;
-}
-
-.search-container {
-    border: 1px solid #aaaaaa;
-}
-
-.top-condition-value {
-    max-width: 300px;
-    border: 1px solid #aaaaaa;
-    text-align: center;
-    padding: 2px;
-    overflow: hidden; /* オーバーした要素を非表示にする*/
-    white-space: nowrap; /* 改行を半角スペースに変換することで、1行にする */
-    text-overflow: ellipsis; /* オーバーしたテキストを３点リーダーにする */
 }
 </style>

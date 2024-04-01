@@ -1,8 +1,8 @@
 <script setup>
 import { ref, onMounted, computed, watch } from 'vue'
 
-const { masterScenarios, editSearchScenario } = defineProps({
-    masterScenarios: Array,
+const { masterScenario, editSearchScenario } = defineProps({
+    masterScenario: Array,
     editSearchScenario: Array,
 })
 
@@ -41,7 +41,7 @@ const searchHeaders = [
     },
 ]
 const filterText = ref()
-const searchItems = ref(masterScenarios) // テーブルデータ
+const searchItems = ref(masterScenario) // テーブルデータ
 // テーブル用
 const tableDatas = ref([])
 watch(searchItems, () => {
@@ -80,7 +80,7 @@ const getScenarioColor = (color) => {
 }
 </script>
 <template>
-    <v-card>
+    <v-card class="select-table-card">
         <v-card-title>算定シナリオ選択</v-card-title>
         <v-card-text>
             <v-text-field

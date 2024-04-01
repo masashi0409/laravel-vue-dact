@@ -1,8 +1,7 @@
 <script setup>
-import { Head, router } from '@inertiajs/vue3'
+import { router } from '@inertiajs/vue3'
 import { ref, reactive, onMounted } from 'vue'
 import axios from 'axios'
-import AppLayout from '@/Layouts/AppLayout.vue'
 import ScenarioDialog from '@/Components/MyComponents/ScenarioDialog.vue'
 import { convertArrayToString } from '@/common'
 
@@ -81,7 +80,7 @@ const clickBack = () => {
                     <v-col cols="2" class="col-condition-label">
                         <v-sheet class="condition-label">医師</v-sheet>
                     </v-col>
-                    <v-col cols="6" class="col-condition-value">
+                    <v-col cols="8" class="col-condition-value">
                         <v-sheet class="condition-value">test</v-sheet>
                     </v-col>
                     <v-col cols="2"><v-btn color="primary">編集</v-btn></v-col>
@@ -90,7 +89,7 @@ const clickBack = () => {
                     <v-col cols="2" class="col-condition-label">
                         <v-sheet class="condition-label">診療科</v-sheet>
                     </v-col>
-                    <v-col cols="6" class="col-condition-value">
+                    <v-col cols="8" class="col-condition-value">
                         <v-sheet class="condition-value">test</v-sheet>
                     </v-col>
                     <v-col cols="2"><v-btn color="primary">編集</v-btn></v-col>
@@ -99,7 +98,7 @@ const clickBack = () => {
                     <v-col cols="2" class="col-condition-label">
                         <v-sheet class="condition-label">病棟</v-sheet>
                     </v-col>
-                    <v-col cols="6" class="col-condition-value">
+                    <v-col cols="8" class="col-condition-value">
                         <v-sheet class="condition-value">test</v-sheet>
                     </v-col>
                     <v-col cols="2"><v-btn color="primary">編集</v-btn></v-col>
@@ -108,7 +107,7 @@ const clickBack = () => {
                     <v-col cols="2" class="col-condition-label">
                         <v-sheet class="condition-label">算定シナリオ</v-sheet>
                     </v-col>
-                    <v-col cols="6" class="col-condition-value">
+                    <v-col cols="8" class="col-condition-value">
                         <v-sheet class="condition-value">
                             <template v-if="editSearchScenario.length > 0">
                                 {{ convertArrayToString(editSearchScenario) }}
@@ -133,13 +132,13 @@ const clickBack = () => {
                         ></v-col
                     >
                 </v-row>
-                <div>
+                <div class="mt-8">
                     <v-row>
                         <v-spacer></v-spacer>
                         <v-col cols="1">
                             <v-btn color="" @click="clickBack">戻る</v-btn>
                         </v-col>
-                        <v-col cols="4">
+                        <v-col cols="2">
                             <v-btn color="primary" @click="clickSave"
                                 >保存</v-btn
                             >

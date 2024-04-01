@@ -2,35 +2,80 @@
 import { Head } from '@inertiajs/vue3'
 import { reactive, ref, onMounted } from 'vue'
 import AppLayout from '@/Layouts/AppLayout.vue'
+import SearchCondition from '@/Components/MyComponents/SearchCondition.vue'
 import ReservationList from '@/Components/MyComponents/ReservationList.vue'
+
+/**
+ * 外来予約リストページ
+ *
+ * 検索条件コンポーネント
+ * 外来予約リストコンポーネント
+ */
 
 const {
     borderMoney, // 逆紹介ボーダー金額,
     extractingDate,
+    initSearchConditionScenario, // 初期条件算定シナリオ
+    initUnSearchConditionScenario,
+    masterScenario,
 } = defineProps({
     borderMoney: Number,
     extractingDate: String,
+    initSearchConditionScenario: Array,
+    initUnSearchConditionScenario: Array,
+    masterScenario: Array,
 })
 
 onMounted(() => {
+    // 検索初期条件をapiパラメータに設定
+    form.scenarios = initSearchConditionScenario.map((i) => i['id'])
+
     getReservationData()
 })
 
-const doctors = [
-    { id: '000256', name: 'doctor_00256' },
-    { id: '001150', name: 'doctor_001150' },
-]
+/**
+ * 検索条件
+ */
+const searchScenario = ref(initSearchConditionScenario)
+const unSearchScenario = ref(initUnSearchConditionScenario)
 
-// 検索条件form params
+// 検索条件コンポーネントからシナリオ変更のemitを受ける
+const changeSearchScenario = (editSearchScenario) => {
+    searchScenario.value = []
+    unSearchScenario.value = []
+    masterScenario.forEach((scenario) => {
+        if (editSearchScenario.includes(scenario.scenario_control_sysid)) {
+            searchScenario.value.push({
+                id: scenario.scenario_control_sysid,
+                name: scenario.display_name,
+                color: scenario.color_code,
+            })
+        } else {
+            unSearchScenario.value.push({
+                id: scenario.scenario_control_sysid,
+                name: scenario.display_name,
+                color: scenario.color_code,
+            })
+        }
+    })
+
+    form.scenarios = editSearchScenario
+}
+
+// apiパラメータform params
 const form = reactive({
     selectedDoctors: [],
     scene: 'reservation',
 })
 
+const clickSearchButton = () => {
+    getReservationData()
+}
+
 const reservationData = reactive({})
 
 const getReservationData = async () => {
-    console.log('reservation get data')
+    // console.log('reservation get data')
     try {
         await axios
             .get('/api/reservations/', {
@@ -42,7 +87,7 @@ const getReservationData = async () => {
             })
             .then((res) => {
                 reservationData.data = res.data.data
-                console.log(reservationData.data)
+                // console.log(reservationData.data)
             })
     } catch (e) {
         console.log(e)
@@ -58,20 +103,14 @@ const getReservationData = async () => {
             <div class="text-h5">外来予約リスト</div>
         </v-container>
 
-        <!--検索-->
-        <v-container>
-            <v-sheet max-width="300px">
-                <v-select
-                    v-model="form.selectedDoctors"
-                    :items="doctors"
-                    item-title="name"
-                    item-value="id"
-                    multiple
-                ></v-select>
-            </v-sheet>
-
-            <v-btn elevation="2" @click="getReservationData">検索</v-btn>
-        </v-container>
+        <!-- 検索条件 -->
+        <SearchCondition
+            :searchScenario="searchScenario"
+            :unSearchScenario="unSearchScenario"
+            :masterScenario="masterScenario"
+            @emitSearchScenario="changeSearchScenario"
+            @clickSearchButton="clickSearchButton"
+        />
 
         <!--外来予約リスト-->
         <v-container>
@@ -82,3 +121,9 @@ const getReservationData = async () => {
         </v-container>
     </AppLayout>
 </template>
+
+<style scoped>
+.disable-events {
+    pointer-events: none;
+}
+</style>
