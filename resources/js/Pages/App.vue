@@ -4,17 +4,18 @@ import { reactive, ref, onMounted, watch } from 'vue'
 import { Chart, registerables } from 'chart.js'
 import { LineChart } from 'vue-chart-3'
 
+import { convertArrayToString } from '@/common'
 import AppLayout from '@/Layouts/AppLayout.vue'
 import CalcSituationTable from '@/Components/MyComponents/CalcSituationTable.vue'
 import TopReservationList from '@/Components/MyComponents/TopReservationList.vue'
 import TopInpatientList from '@/Components/MyComponents/TopInpatientList.vue'
-import ScenarioDialog from '@/Components/MyComponents/ScenarioDialog.vue'
-import { convertArrayToString } from '@/common'
+import SelectScenarioDialog from '@/Components/MyComponents/SelectScenarioDialog.vue'
+import InitialSearchConditionDialog from '@/Components/MyComponents/InitialSearchConditionDialog.vue'
 
 // controllerから渡ってくる
 const {
     borderMoney, // 逆紹介ボーダー金額
-    scenarios,
+    masterScenarios,
     searchConditionScenario, // 初期検索条件算定シナリオ
     unSearchConditionScenario,
     extractingDate, // 最新更新日 2022-08-25
@@ -28,7 +29,7 @@ const {
     subYearMonthLabels, // 過去1年の月配列
 } = defineProps({
     borderMoney: Number,
-    scenarios: Array,
+    masterScenarios: Array,
     searchConditionScenario: Array,
     unSearchConditionScenario: Array,
     extractingDate: String,
@@ -46,8 +47,8 @@ onMounted(() => {
     // console.log('App onMounted')
 
     // シナリオマスタ取得
-    scenarios.forEach((scenario, i) => {
-        scenarios[i].label =
+    masterScenarios.forEach((scenario, i) => {
+        masterScenarios[i].label =
             scenario.scenario_control_sysid + ':' + scenario.display_name
     })
 
@@ -78,13 +79,32 @@ onMounted(() => {
 // 検索条件
 const searchScenario = ref(searchConditionScenario) // 算定シナリオ検索条件
 const unSearchScenario = ref(unSearchConditionScenario)
-// シナリオsubmit
-const onScenarioSubmit = (editingSearchScenario, editingUnsearchScenario) => {
-    senarioDialogFlg.value = false
-    searchScenario.value = editingSearchScenario
-    unSearchScenario.value = editingUnsearchScenario
+// シナリオダイアログsubmit
+const onScenarioSubmit = (editingSearchScenario) => {
+    console.log(masterScenarios)
+    console.log(searchScenario.value)
+    console.log(editingSearchScenario)
 
-    form.scenarios = searchScenario.value.map((i) => i['id'])
+    senarioDialogFlg.value = false
+
+    // searchScenario、unsearchScenario作成しなおし
+    searchScenario.value = []
+    unSearchScenario.value = []
+    masterScenarios.forEach((scenario) => {
+        if (editingSearchScenario.includes(scenario.scenario_control_sysid)) {
+            searchScenario.value.push({
+                id: scenario.scenario_control_sysid,
+                name: scenario.display_name,
+            })
+        } else {
+            unSearchScenario.value.push({
+                id: scenario.scenario_control_sysid,
+                name: scenario.display_name,
+            })
+        }
+    })
+
+    form.scenarios = editingSearchScenario
 }
 const cancelScenarioDialog = () => {
     senarioDialogFlg.value = false
@@ -435,6 +455,8 @@ const getInpatientData = async () => {
         console.log(e)
     }
 }
+
+const initialSearchConditionDialogFlg = ref(false)
 </script>
 
 <template>
@@ -443,6 +465,19 @@ const getInpatientData = async () => {
         <!--検索-->
         <v-container class="mt-4 mb-4 search-container">
             <div class="text-h6">検索条件</div>
+
+            <v-btn
+                density="compact"
+                icon="mdi-cog"
+                @click="initialSearchConditionDialogFlg = true"
+            ></v-btn>
+            <v-dialog v-model="initialSearchConditionDialogFlg">
+                <InitialSearchConditionDialog
+                    :searchConditionScenario="searchScenario"
+                    :unSearchConditionScenario="unSearchScenario"
+                    @clickCancel="initialSearchConditionDialogFlg = false"
+                />
+            </v-dialog>
 
             <v-row class="mb-4">
                 <v-col>
@@ -488,9 +523,9 @@ const getInpatientData = async () => {
 
         <!-- シナリオダイアログ -->
         <v-dialog v-model="senarioDialogFlg">
-            <ScenarioDialog
+            <SelectScenarioDialog
+                :masterScenarios="masterScenarios"
                 :editSearchScenario="searchScenario"
-                :editUnsearchScenario="unSearchScenario"
                 @clickSubmit="onScenarioSubmit"
                 @clickCancel="cancelScenarioDialog"
             />
