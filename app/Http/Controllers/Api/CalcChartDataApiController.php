@@ -16,8 +16,6 @@ class CalcChartDataApiController extends Controller
     function index (Request $request)
     {
         // Log::debug('calc chart data api index');
-        
-        $scenarios = Scenario::getScenarios($request->scenarios);
 
         $resultCalcAchiveChartData = CalcAchieve::getCalcArchiveChartData($request->scenarios, $request->fromDate, $request->toDate);
         
@@ -30,8 +28,7 @@ class CalcChartDataApiController extends Controller
             array_push($dataKeyDate, $keyDate->toDateString());
         }
         
-        // $senarioLabels = $result->unique('scenariocontrol_sysid')->pluck('display_name', 'scenariocontrol_sysid'); //uniqueで重複削除、pluckで指定カラムだけの配列
-
+        $scenarios = Scenario::getScenarios($request->scenarios);
         $datasets = [];
         // datasetsにlabel, colorを入れる
         foreach ($scenarios as $scenario) {
@@ -45,12 +42,9 @@ class CalcChartDataApiController extends Controller
 
         // 実績データをdatasetに詰めていく
         $resultCalcAchiveChartData->each(function ($row) use($dataKeyDate, &$datasets) { // 更新したいので&をつけてuse https://teratail.com/questions/76248
-            // Log::debug($row->scenariocontrol_sysid);
-            // Log::debug($row->key_date);
-            // Log::debug($row->santeicount);
+
             
             $key = array_search($row->key_date, $dataKeyDate); // key_dateがdataの何番目か
-            // Log::debug($key);
             $datasets[$row->scenariocontrol_sysid]['jissekiData'][$key] = $row->santeicount;
             // Log::debug($datasets[$row->scenariocontrol_sysid]['jissekiData'][$key]);
         });
@@ -72,44 +66,30 @@ class CalcChartDataApiController extends Controller
     }
     
     function getTermMonthData(Request $request) {
-        Log::debug('calc chart data api getTermMonthData');
-        // Log::debug($request);
+        // Log::debug('calc chart data api getTermMonthData');
         $monthLabels = $request->monthLabels;
-        // Log::debug($monthLabels);
-        // Log::debug($request->toDate);
         $toDate = new Carbon($request->toDate);
         $toMonthKey = array_search($toDate->format('Y-m'), $monthLabels);
-        // Log::debug($toMonthKey);
-        
         $monthLabels = array_slice($monthLabels, 0, $toMonthKey+1);
-        // Log::debug($monthLabels);
         
         $result = CalcAchieve::getTermMonthCalcChartData($request->scenarios, $request->fromDate, $request->toDate);
         
-        $scenarioLabels = $result->unique('scenariocontrol_sysid')->pluck('display_name', 'scenariocontrol_sysid'); //uniqueで重複削除、pluckで指定カラムだけの配列
-
+        $scenarios = Scenario::getScenarios($request->scenarios);
         $datasets = [];
         //senarioLabelを入れる
-        foreach ($scenarioLabels as $senarioId => $senarioLabel) {
-            $datasets[$senarioId] = [
-                'label' => $senarioLabel,
+        foreach ($scenarios as $scenario) {
+            $datasets[$scenario->scenario_control_sysid] = [
+                'label' => $scenario->display_name,
+                'color' => $scenario->color_code,
                 'jissekiData' => array_fill(0, count($monthLabels), 0),
                 'ruikeiData' => array_fill(0, count($monthLabels), 0)
             ];   
         }
         
         // 実績データをdatasetに詰めていく
-        $result->each(function ($row) use ($monthLabels, &$datasets) {
-            // Log::debug($row->scenariocontrol_sysid);
-            // Log::debug($row->display_name);
-            // Log::debug($row->target_year);
-            // Log::debug($row->target_month);
-            // Log::debug($row->achievement_count);
-            
+        $result->each(function ($row) use ($monthLabels, &$datasets) {            
             $dataYearMonth = $row->target_year . '-' . $row->target_month;
-            // Log::debug($datayearMonth);
             $key = array_search($dataYearMonth, $monthLabels); // 取得データrowのdatasetのkey(何番目か)
-            // Log::debug($key);
             $datasets[$row->scenariocontrol_sysid]['jissekiData'][$key] = $row->achievement_count;
         });
         
