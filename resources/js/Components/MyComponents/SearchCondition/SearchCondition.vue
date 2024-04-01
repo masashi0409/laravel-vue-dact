@@ -1,32 +1,70 @@
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
 import { convertArrayToString } from '@/common'
-import InitialSearchConditionDialog from '@/Components/MyComponents/InitialSearchConditionDialog.vue'
-import SelectScenarioDialog from '@/Components/MyComponents/SelectScenarioDialog.vue'
+import InitialSearchConditionDialog from '@/Components/MyComponents/SearchCondition/InitialSearchConditionDialog.vue'
+import SelectDoctorDialog from '@/Components/MyComponents/SearchCondition/SelectDoctorDialog.vue'
+import SelectScenarioDialog from '@/Components/MyComponents/SearchCondition/SelectScenarioDialog.vue'
 
-const { searchScenario, unSearchScenario, masterScenario } = defineProps({
+/**
+ * 検索条件コンポーネント
+ *
+ *  - 初期条件変更ダイアログコンポーネント
+ *
+ *  - 医師選択ダイアログコンポーネント
+ *  - 算定シナリオ選択ダイアログコンポーネント
+ *
+ *   検索ボタン
+ */
+
+const {
+    masterDoctor,
+    searchDoctor,
+    unSearchDoctor,
+    masterScenario,
+    searchScenario,
+    unSearchScenario,
+} = defineProps({
+    masterDoctor: Array,
+    searchDoctor: Array,
+    unSearchDoctor: Array,
+    masterScenario: Array,
     searchScenario: Array,
     unSearchScenario: Array,
-    masterScenario: Array,
 })
 
-const emit = defineEmits(['emitSearchScenario', 'clickSearchButton'])
+const emit = defineEmits([
+    'emitSearchDoctor',
+    'emitSearchScenario',
+    'clickSearchButton',
+])
+
+onMounted(() => {
+    // console.log('search condition')
+})
 
 // 初期条件変更ダイアログ
 const initialSearchConditionDialogFlg = ref(false)
 
 // 検索条件変更ダイアログ
+const doctorDialogFlg = ref(false)
+const sectionDialogFlg = ref(false)
+const wardDialogFlg = ref(false)
 const senarioDialogFlg = ref(false)
 
 const clickSearchButton = () => {
     emit('clickSearchButton')
 }
 
+// 医師ダイアログからemit
+const onDoctorSubmit = (editingSearchDoctor) => {
+    doctorDialogFlg.value = false
+
+    // 検索コンポーネントからページにemit
+    emit('emitSearchDoctor', editingSearchDoctor)
+}
+
 // シナリオダイアログからemit
 const onScenarioSubmit = (editingSearchScenario) => {
-    console.log(searchScenario)
-    console.log(editingSearchScenario)
-
     senarioDialogFlg.value = false
 
     // 検索コンポーネントからページにemit
@@ -48,6 +86,8 @@ const onScenarioSubmit = (editingSearchScenario) => {
 
         <v-dialog v-model="initialSearchConditionDialogFlg" max-width="1200">
             <InitialSearchConditionDialog
+                :searchDoctor="searchDoctor"
+                :unSearchDoctor="unSearchDoctor"
                 :searchConditionScenario="searchScenario"
                 :unSearchConditionScenario="unSearchScenario"
                 @clickCancel="initialSearchConditionDialogFlg = false"
@@ -57,7 +97,20 @@ const onScenarioSubmit = (editingSearchScenario) => {
         <v-row class="mb-4">
             <v-col>
                 <div>医師</div>
-                <v-sheet class="top-condition-value"> test </v-sheet>
+                <v-sheet
+                    class="top-condition-value"
+                    @click.stop="doctorDialogFlg = true"
+                >
+                    <template v-if="searchDoctor.length > 0">
+                        {{ convertArrayToString(searchDoctor) }}
+                        <v-tooltip activator="parent">
+                            {{ convertArrayToString(searchDoctor) }}
+                        </v-tooltip>
+                    </template>
+                    <template v-if="searchDoctor.length === 0">
+                        すべての医師
+                    </template>
+                </v-sheet>
             </v-col>
             <v-col>
                 <div>診療科</div>
@@ -88,7 +141,17 @@ const onScenarioSubmit = (editingSearchScenario) => {
             </v-col>
         </v-row>
 
-        <!-- シナリオダイアログ -->
+        <!-- 医師選択ダイアログ -->
+        <v-dialog v-model="doctorDialogFlg" max-width="600">
+            <SelectDoctorDialog
+                :masterDoctor="masterDoctor"
+                :editSearchDoctor="searchDoctor"
+                @clickSubmit="onDoctorSubmit"
+                @clickCancel="doctorDialogFlg = false"
+            />
+        </v-dialog>
+
+        <!-- 算定シナリオ選択ダイアログ -->
         <v-dialog v-model="senarioDialogFlg" max-width="600">
             <SelectScenarioDialog
                 :masterScenario="masterScenario"

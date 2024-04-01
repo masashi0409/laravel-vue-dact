@@ -10,6 +10,7 @@ use Carbon\CarbonPeriod;
 use Illuminate\Support\Facades\Log;
 use App\Models\Master\Scenario;
 use App\Models\Master\Hospital;
+use App\Models\Master\Doctor;
 use App\Models\SearchCondition;
 use App\Models\ProcessManagement;
 
@@ -26,8 +27,9 @@ class AppController extends Controller
         // 施設情報取得
         $hospital = Hospital::where('hpid', $hospitalId)->first();
 
-        // シナリオマスタ取得
+        // マスタ取得
         $masterScenarios = Scenario::getScenarios();
+        $masterDoctors = Doctor::getDoctors();
 
         /**
          * 初期検索条件 searchCondition
@@ -35,6 +37,32 @@ class AppController extends Controller
         // 初期検索条件 searchCondition取得
         $searchCondition = SearchCondition::where('create_user', $userId)->get();
 
+        // 医師
+        $searchConditionDoctor = [];
+        if (count($searchCondition) > 0) {
+            $resultSearchConditionDoctor = SearchCondition::getSearchConditionDoctor($userId);
+            foreach($resultSearchConditionDoctor[0]->searchConditionDetail as $s) {
+                $searchConditionDoctor[] = [
+                    'id' => $s->code,
+                    'name' => $s->name,
+                    'type' => 1
+                ];
+            }
+        }
+        // unsearchConditionDoctorも作成
+        $unSearchConditionDoctor = [];
+        foreach($masterDoctors as $masterDoctor) {
+            $keyIndex = array_search($masterDoctor->doctor_id, array_column($searchConditionDoctor, 'id'));
+            if ($keyIndex === false) {
+                $unSearchConditionDoctor[] = [
+                    'id' => $masterDoctor->doctor_id,
+                    'name' => $masterDoctor->name,
+                    'type' => 1
+                ];
+            }
+        }
+
+        // シナリオ
         $searchConditionScenario = [];
         if (count($searchCondition) > 0) {
             $resultSearchConditionScenario = SearchCondition::getSearchConditionByType($userId, 4);
@@ -47,10 +75,11 @@ class AppController extends Controller
                 ];
             }
         }
+        
         // unSearchCondition（選択画面の左側のリスト）も作成しておく
         $unSearchConditionScenario = [];
         foreach($masterScenarios as $masterScenario) {
-            $keyIndex = array_search($masterScenario->scenario_control_sysid, array_column($searchConditionScenario, 'id'));
+            $keyIndex = array_search($masterScenario->scenario_control_sysid, array_column($searchConditionScenario, 'id')); //初期条件になければ
             if ($keyIndex === false) {
                 // searchConditionにないからunSearchConditionに格納する
                 $unSearchConditionScenario[] = [
@@ -119,6 +148,9 @@ class AppController extends Controller
         
         return Inertia::render('App', [
             'borderMoney' => $hospital->border_money, // 逆紹介ボーダー金額
+            'masterDoctor' => $masterDoctors,
+            'initSearchConditionDoctor' => $searchConditionDoctor, // 初期検索条件医師
+            'initUnSearchConditionDoctor' => $unSearchConditionDoctor,
             'masterScenario' => $masterScenarios,
             'searchConditionScenario' => $searchConditionScenario, // 初期検索条件算定シナリオ
             'unSearchConditionScenario' => $unSearchConditionScenario,

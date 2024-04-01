@@ -5,7 +5,7 @@ import { Chart, registerables } from 'chart.js'
 import { LineChart } from 'vue-chart-3'
 
 import AppLayout from '@/Layouts/AppLayout.vue'
-import SearchCondition from '@/Components/MyComponents/SearchCondition.vue'
+import SearchCondition from '@/Components/MyComponents/SearchCondition/SearchCondition.vue'
 import CalcSituationTable from '@/Components/MyComponents/CalcSituationTable.vue'
 import TopReservationList from '@/Components/MyComponents/TopReservationList.vue'
 import TopInpatientList from '@/Components/MyComponents/TopInpatientList.vue'
@@ -13,6 +13,9 @@ import TopInpatientList from '@/Components/MyComponents/TopInpatientList.vue'
 // controllerから渡ってくる
 const {
     borderMoney, // 逆紹介ボーダー金額
+    masterDoctor,
+    initSearchConditionDoctor,
+    initUnSearchConditionDoctor,
     masterScenario,
     searchConditionScenario, // 初期検索条件算定シナリオ
     unSearchConditionScenario,
@@ -27,6 +30,9 @@ const {
     subYearMonthLabels, // 過去1年の月配列
 } = defineProps({
     borderMoney: Number,
+    masterDoctor: Array,
+    initSearchConditionDoctor: Array,
+    initUnSearchConditionDoctor: Array,
     masterScenario: Array,
     searchConditionScenario: Array,
     unSearchConditionScenario: Array,
@@ -42,9 +48,13 @@ const {
 })
 
 onMounted(() => {
-    // console.log('App onMounted')
+    console.log('App onMounted')
+
+    // console.log(initSearchConditionDoctor)
+    console.log(initUnSearchConditionDoctor)
 
     // 検索初期条件を検索条件に設定
+    form.doctors = initSearchConditionDoctor.map((i) => i['id'])
     form.scenarios = searchConditionScenario.map((i) => i['id'])
 
     // 日付
@@ -53,9 +63,6 @@ onMounted(() => {
 
     chartLabels.value = monthDateLabels
     limitedRangeDateLabels.value = chartLabels.value
-
-    // console.log(startYearDate)
-    // console.log(startSubYearDate)
 
     // sliderValues
     sliderValueMax.value = chartLabels.value.length - 1
@@ -69,13 +76,34 @@ onMounted(() => {
 })
 
 // 検索条件
+const searchDoctor = ref(initSearchConditionDoctor)
+const unSearchDoctor = ref(initUnSearchConditionDoctor)
+
 const searchScenario = ref(searchConditionScenario) // 算定シナリオ検索条件
 const unSearchScenario = ref(unSearchConditionScenario)
-// 検索条件コンポーネントからシナリオ変更のemitを受ける
-const changeSearchScenario = (editSearchScenario) => {
-    console.log('reservation edit search scenario')
-    console.log(editSearchScenario)
 
+// 医師選択ダイアログから医師変更のemitを受ける
+const changeSearchDoctor = (editSearchDoctor) => {
+    searchDoctor.value = []
+    unSearchDoctor.value = []
+    masterDoctor.forEach((doctor) => {
+        if (editSearchDoctor.includes(doctor.doctor_id)) {
+            searchDoctor.value.push({
+                id: doctor.doctor_id,
+                name: doctor.name,
+            })
+        } else {
+            unSearchDoctor.value.push({
+                id: doctor.doctor_id,
+                name: doctor.name,
+            })
+        }
+    })
+
+    form.doctors = editSearchDoctor
+}
+// 算定シナリオ選択ダイアログからシナリオ変更のemitを受ける
+const changeSearchScenario = (editSearchScenario) => {
     searchScenario.value = []
     unSearchScenario.value = []
     masterScenario.forEach((scenario) => {
@@ -339,9 +367,6 @@ const updateCalcChart = () => {
     // console.log('update chart')
     datasets.value = []
     calcData.scenarios.forEach((scenario, i) => {
-        // console.log(scenario)
-        console.log(calcData.data[scenario])
-
         // 累計トグルで累計か実績データを入れる
         let data = []
         if (cumulativeType.value == 0) {
@@ -455,9 +480,13 @@ const initialSearchConditionDialogFlg = ref(false)
     <AppLayout>
         <!-- 検索コンポーネント -->
         <SearchCondition
+            :masterDoctor="masterDoctor"
+            :searchDoctor="searchDoctor"
+            :unSearchDoctor="unSearchDoctor"
+            :masterScenario="masterScenario"
             :searchScenario="searchScenario"
             :unSearchScenario="unSearchScenario"
-            :masterScenario="masterScenario"
+            @emitSearchDoctor="changeSearchDoctor"
             @emitSearchScenario="changeSearchScenario"
             @clickSearchButton="clickSearchButton"
         />

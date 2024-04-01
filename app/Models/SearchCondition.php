@@ -26,7 +26,33 @@ class SearchCondition extends Model
         return $this->hasMany(SearchConditionDetail::class, 'search_id', 'search_id');
     }
 
-    // ユーザの検索条件 typeごと を取得
+    // ユーザの初期条件 医師を取得
+    public static function getSearchConditionDoctor($userId) {
+        return SearchCondition::
+            select(
+                'dmart_search_condition.search_id'
+            )
+            ->with(['searchConditionDetail' => function ($query) use ($userId) {
+                $query
+                ->select(
+                    'dmart_search_condition_detail.search_id',
+                    'dmart_search_condition_detail.code',
+                    'dmart_m_doctor.doctor_name as name'
+                )
+                ->join('dmart_m_doctor', function($join) {
+                    $join->on('dmart_search_condition_detail.code',
+                    '=', 'dmart_m_doctor.doctor_id');
+                })
+                ->where('dmart_search_condition_detail.create_user', $userId)
+                ->where('dmart_search_condition_detail.search_type', 1)
+                ->orderBy('dmart_search_condition_detail.code', 'asc')
+                ;
+            }])
+            ->where('create_user', $userId)
+            ->get();
+    }
+
+    // ユーザの初期検索条件 算定シナリオを取得
     public static function getSearchConditionByType($userId, $searchType) {
         return SearchCondition::
             select(

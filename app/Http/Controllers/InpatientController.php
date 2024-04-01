@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Inertia\Inertia;
 use App\Models\Master\Scenario;
 use App\Models\Master\Hospital;
+use App\Models\Master\Doctor;
 use App\Models\SearchCondition;
 use App\Models\ProcessManagement;
 
@@ -21,15 +22,40 @@ class InpatientController extends Controller
         // 施設情報取得
         $hospital = Hospital::where('hpid', $hospitalId)->first();
         
-        // シナリオマスタ取得
+        // マスタ取得
         $masterScenarios = Scenario::getScenarios();
+        $masterDoctors = Doctor::getDoctors();
 
         /**
          * 初期検索条件 searchCondition
          */
         // 初期検索条件 searchCondition取得
         $searchCondition = SearchCondition::where('create_user', $userId)->get();
-
+        // 医師
+        $searchConditionDoctor = [];
+        if (count($searchCondition) > 0) {
+            $resultSearchConditionDoctor = SearchCondition::getSearchConditionDoctor($userId);
+            foreach($resultSearchConditionDoctor[0]->searchConditionDetail as $s) {
+                $searchConditionDoctor[] = [
+                    'id' => $s->code,
+                    'name' => $s->name,
+                    'type' => 1
+                ];
+            }
+        }
+        // unsearchConditionDoctorも作成
+        $unSearchConditionDoctor = [];
+        foreach($masterDoctors as $masterDoctor) {
+            $keyIndex = array_search($masterDoctor->doctor_id, array_column($searchConditionDoctor, 'id'));
+            if ($keyIndex === false) {
+                $unSearchConditionDoctor[] = [
+                    'id' => $masterDoctor->doctor_id,
+                    'name' => $masterDoctor->name,
+                    'type' => 1
+                ];
+            }
+        }
+        // 算定シナリオ
         $searchConditionScenario = [];
         if (count($searchCondition) > 0) {
             $resultSearchConditionScenario = SearchCondition::getSearchConditionByType($userId, 4);
@@ -62,6 +88,9 @@ class InpatientController extends Controller
         $extractingDate = $processManagement->extracting_date;
         
         return Inertia::render('Inpatient', [
+            'masterDoctor' => $masterDoctors,
+            'initSearchConditionDoctor' => $searchConditionDoctor, // 初期検索条件医師
+            'initUnSearchConditionDoctor' => $unSearchConditionDoctor,
             'masterScenario' => $masterScenarios,
             'initSearchConditionScenario' => $searchConditionScenario, // 初期検索条件算定シナリオ
             'initUnSearchConditionScenario' => $unSearchConditionScenario,

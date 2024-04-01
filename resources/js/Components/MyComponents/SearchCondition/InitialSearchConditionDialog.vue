@@ -2,43 +2,56 @@
 import { router } from '@inertiajs/vue3'
 import { ref, reactive, onMounted } from 'vue'
 import axios from 'axios'
-import ScenarioDialog from '@/Components/MyComponents/ScenarioDialog.vue'
 import { convertArrayToString } from '@/common'
+import SettingDoctorDialog from '@/Components/MyComponents/SearchCondition/SettingDoctorDialog.vue'
+import SettingScenarioDialog from '@/Components/MyComponents/SearchCondition/SettingScenarioDialog.vue'
 
-// searchConditionからのデータ 設定済の検索条件
-const { searchConditionScenario, unSearchConditionScenario } = defineProps({
+/**
+ * 初期条件変更ダイアログ
+ */
+
+// 検索条件コンポーネントからのデータ 設定済の検索条件
+const {
+    searchDoctor,
+    unSearchDoctor,
+    searchConditionScenario,
+    unSearchConditionScenario,
+} = defineProps({
+    searchDoctor: Array,
+    unSearchDoctor: Array,
     searchConditionScenario: Array,
     unSearchConditionScenario: Array,
 })
 
 // 保存ボタン押すまでは編集時の検索条件を表示したいので保持
+const editSearchDoctor = ref(searchDoctor)
+const editUnSearchDoctor = ref(unSearchDoctor)
 const editSearchScenario = ref(searchConditionScenario)
 const editUnSearchScenario = ref(unSearchConditionScenario)
 
 const emit = defineEmits(['clickCancel'])
 
 onMounted(() => {
-    // console.log('onMounted')
-    // console.log(editSearchScenario.value)
-    // console.log(editUnSearchScenario.value)
+    console.log('initialSearchCondition')
+    console.log(editSearchDoctor.value)
+    console.log(editUnSearchDoctor.value)
 })
 
+const doctorDialogFlg = ref(false)
 const senarioDialogFlg = ref(false)
 
-// シナリオsubmit
-// submitされたら表示・保存用でシナリオを保持
-// DBからの値を表示していたものが、ダイアログからemitされた場合はそちらを表示する
-const onScenarioSubmit = (editingSearchScenario, editingUnsearchScenario) => {
-    // console.log('onScenarioSubmit')
-    senarioDialogFlg.value = false
-    // console.log(editingSearchScenario)
-    // console.log(editingUnsearchScenario)
-    editSearchScenario.value = editingSearchScenario
-    editUnSearchScenario.value = editingUnsearchScenario
+// 医師ダイアログからemit
+const onDoctorSubmit = (editingSearchDoctor, editingUnSearchDoctor) => {
+    doctorDialogFlg.value = false
+    editSearchDoctor.value = editingSearchDoctor
+    editUnSearchDoctor.value = editingUnSearchDoctor
 }
 
-const cancelScenarioDialog = () => {
+// シナリオダイアログからemitされる
+const onScenarioSubmit = (editingSearchScenario, editingUnsearchScenario) => {
     senarioDialogFlg.value = false
+    editSearchScenario.value = editingSearchScenario
+    editUnSearchScenario.value = editingUnsearchScenario
 }
 
 // 保存api用
@@ -47,9 +60,13 @@ const form = reactive({
 })
 // 保存ボタンを押下 選択された条件をseachConditionApiで保存
 const clickSave = async () => {
-    // console.log('click save')
-    form.searchConditions = [...editSearchScenario.value]
-    // console.log(form.searchConditions)
+    console.log('click save')
+
+    form.searchConditions = [
+        ...editSearchDoctor.value,
+        ...editSearchScenario.value,
+    ]
+    console.log(form.searchConditions)
     try {
         await axios
             .post('/api/update-search-condition', {
@@ -81,9 +98,25 @@ const clickBack = () => {
                         <v-sheet class="condition-label">医師</v-sheet>
                     </v-col>
                     <v-col cols="8" class="col-condition-value">
-                        <v-sheet class="condition-value">test</v-sheet>
+                        <v-sheet class="condition-value">
+                            <template v-if="editSearchDoctor.length > 0">
+                                {{ convertArrayToString(editSearchDoctor) }}
+                                <v-tooltip activator="parent">
+                                    {{ convertArrayToString(editSearchDoctor) }}
+                                </v-tooltip>
+                            </template>
+                            <template v-if="editSearchDoctor.length === 0">
+                                すべての医師
+                            </template>
+                        </v-sheet>
                     </v-col>
-                    <v-col cols="2"><v-btn color="primary">編集</v-btn></v-col>
+                    <v-col cols="2"
+                        ><v-btn
+                            color="primary"
+                            @click.stop="doctorDialogFlg = true"
+                            >編集</v-btn
+                        ></v-col
+                    >
                 </v-row>
                 <v-row>
                     <v-col cols="2" class="col-condition-label">
@@ -111,16 +144,14 @@ const clickBack = () => {
                         <v-sheet class="condition-value">
                             <template v-if="editSearchScenario.length > 0">
                                 {{ convertArrayToString(editSearchScenario) }}
-                            </template>
-                            <template v-if="editSearchScenario.length === 0">
-                                すべての算定シナリオ
-                            </template>
-                            <template v-if="editSearchScenario.length > 0">
                                 <v-tooltip activator="parent">
                                     {{
                                         convertArrayToString(editSearchScenario)
                                     }}
                                 </v-tooltip>
+                            </template>
+                            <template v-if="editSearchScenario.length === 0">
+                                すべての算定シナリオ
                             </template>
                         </v-sheet>
                     </v-col>
@@ -149,13 +180,22 @@ const clickBack = () => {
         </v-card>
     </div>
 
+    <!-- 医師ダイアログ -->
+    <v-dialog v-model="doctorDialogFlg">
+        <SettingDoctorDialog
+            :editSearchDoctor="editSearchDoctor"
+            :editUnSearchDoctor="editUnSearchDoctor"
+            @clickSubmit="onDoctorSubmit"
+            @clickCancel="doctorDialogFlg = false"
+        />
+    </v-dialog>
     <!-- シナリオダイアログ -->
     <v-dialog v-model="senarioDialogFlg">
-        <ScenarioDialog
+        <SettingScenarioDialog
             :editSearchScenario="editSearchScenario"
             :editUnsearchScenario="editUnSearchScenario"
             @clickSubmit="onScenarioSubmit"
-            @clickCancel="cancelScenarioDialog"
+            @clickCancel="senarioDialogFlg = false"
         />
     </v-dialog>
 </template>

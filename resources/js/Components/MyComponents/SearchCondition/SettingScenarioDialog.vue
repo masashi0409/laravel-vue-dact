@@ -2,7 +2,7 @@
 import { ref, onMounted, watch } from 'vue'
 
 /**
- * 初期条件変更 算定シナリオ ダイアログ
+ * 初期検索条件設定 算定シナリオ ダイアログ
  */
 
 const { editSearchScenario, editUnsearchScenario } = defineProps({
@@ -38,6 +38,7 @@ onMounted(() => {
         })
     })
 })
+
 /**
  * unsearchテーブルの設定・データ
  */
@@ -107,13 +108,13 @@ const selectedSearch = ref([])
 /**
  * addボタン系
  */
+
 // unsearchTableで選択されているものをsearchTableDataへ
 const addSearch = () => {
     // console.log(selectedUnsearch.value)
     selectedUnsearch.value.forEach((s) => {
         // console.log(s)
         let selectedScenario = unSearchItems.value.find((i) => i.id === s) // nameが必要なため
-
         // searchItemsにaddする
         searchItems.value.push(selectedScenario)
 
@@ -133,22 +134,8 @@ const addSearch = () => {
     })
 
     selectedUnsearch.value = []
-}
 
-const addAllSearch = () => {
-    searchItems.value = [...searchItems.value, ...unSearchItems.value]
-    unSearchItems.value = []
-
-    searchTableDatas.value = []
-    searchItems.value.forEach((d) => {
-        searchTableDatas.value.push({
-            id: d.id,
-            scenario: {
-                name: d.name,
-                color: d.color,
-            },
-        })
-    })
+    console.log(unSearchItems.value)
 }
 
 // searchTableDataで選択されているものをunsearchTableへ
@@ -177,6 +164,24 @@ const addUnsearch = () => {
     selectedSearch.value = []
 }
 
+// unsearchTableをすべてsearchTableへ
+const addAllSearch = () => {
+    searchItems.value = [...searchItems.value, ...unSearchItems.value]
+    unSearchItems.value = []
+
+    searchTableDatas.value = []
+    searchItems.value.forEach((d) => {
+        searchTableDatas.value.push({
+            id: d.id,
+            scenario: {
+                name: d.name,
+                color: d.color,
+            },
+        })
+    })
+}
+
+// searchTableをすべてUnsearchTableへ
 const addAllUnSearch = () => {
     unSearchItems.value = [...unSearchItems.value, ...searchItems.value]
     searchItems.value = []

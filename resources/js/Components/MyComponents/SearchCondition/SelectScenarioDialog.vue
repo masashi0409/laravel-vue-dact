@@ -1,6 +1,10 @@
 <script setup>
 import { ref, onMounted, computed, watch } from 'vue'
 
+/**
+ * 検索条件選択 算定シナリオ ダイアログ
+ */
+
 const { masterScenario, editSearchScenario } = defineProps({
     masterScenario: Array,
     editSearchScenario: Array,
@@ -31,9 +35,9 @@ onMounted(() => {
 })
 
 /**
- * searchテーブルの設定
+ * selectテーブルの設定
  */
-const searchHeaders = [
+const selectHeaders = [
     {
         title: '選択算定シナリオ',
         align: 'start',
@@ -58,10 +62,6 @@ watch(searchItems, () => {
 })
 // テーブルで選択されている
 const selectedItems = ref([])
-watch(selectedItems, () => {
-    console.log(selectedItems.value)
-})
-
 /**
  * 選択ボタン submit
  */
@@ -92,7 +92,7 @@ const getScenarioColor = (color) => {
                 class="filter-text m-2"
             ></v-text-field>
             <v-data-table
-                :headers="searchHeaders"
+                :headers="selectHeaders"
                 :items="tableDatas"
                 item-value="id"
                 show-select

@@ -2,7 +2,7 @@
 import { Head } from '@inertiajs/vue3'
 import { reactive, ref, onMounted } from 'vue'
 import AppLayout from '@/Layouts/AppLayout.vue'
-import SearchCondition from '@/Components/MyComponents/SearchCondition.vue'
+import SearchCondition from '@/Components/MyComponents/SearchCondition/SearchCondition.vue'
 import ReservationList from '@/Components/MyComponents/ReservationList.vue'
 
 /**
@@ -12,22 +12,30 @@ import ReservationList from '@/Components/MyComponents/ReservationList.vue'
  * 外来予約リストコンポーネント
  */
 
+// todo doctor
 const {
     borderMoney, // 逆紹介ボーダー金額,
     extractingDate,
+    masterDoctor,
+    initSearchConditionDoctor,
+    initUnSearchConditionDoctor,
+    masterScenario,
     initSearchConditionScenario, // 初期条件算定シナリオ
     initUnSearchConditionScenario,
-    masterScenario,
 } = defineProps({
     borderMoney: Number,
     extractingDate: String,
+    masterDoctor: Array,
+    initSearchConditionDoctor: Array,
+    initUnSearchConditionDoctor: Array,
+    masterScenario: Array,
     initSearchConditionScenario: Array,
     initUnSearchConditionScenario: Array,
-    masterScenario: Array,
 })
 
 onMounted(() => {
     // 検索初期条件をapiパラメータに設定
+    form.doctors = initSearchConditionDoctor.map((i) => i['id'])
     form.scenarios = initSearchConditionScenario.map((i) => i['id'])
 
     getReservationData()
@@ -36,10 +44,32 @@ onMounted(() => {
 /**
  * 検索条件
  */
+const searchDoctor = ref(initSearchConditionDoctor)
+const unSearchDoctor = ref(initUnSearchConditionDoctor)
 const searchScenario = ref(initSearchConditionScenario)
 const unSearchScenario = ref(initUnSearchConditionScenario)
 
-// 検索条件コンポーネントからシナリオ変更のemitを受ける
+// 医師選択ダイアログから医師変更のemitを受ける
+const changeSearchDoctor = (editSearchDoctor) => {
+    searchDoctor.value = []
+    unSearchDoctor.value = []
+    masterDoctor.forEach((doctor) => {
+        if (editSearchDoctor.includes(doctor.doctor_id)) {
+            searchDoctor.value.push({
+                id: doctor.doctor_id,
+                name: doctor.name,
+            })
+        } else {
+            unSearchDoctor.value.push({
+                id: doctor.doctor_id,
+                name: doctor.name,
+            })
+        }
+    })
+
+    form.doctors = editSearchDoctor
+}
+// 算定シナリオ選択ダイアログからシナリオ変更のemitを受ける
 const changeSearchScenario = (editSearchScenario) => {
     searchScenario.value = []
     unSearchScenario.value = []
@@ -64,7 +94,7 @@ const changeSearchScenario = (editSearchScenario) => {
 
 // apiパラメータform params
 const form = reactive({
-    selectedDoctors: [],
+    doctors: [],
     scene: 'reservation',
 })
 
@@ -80,7 +110,7 @@ const getReservationData = async () => {
         await axios
             .get('/api/reservations/', {
                 params: {
-                    doctors: form.selectedDoctors,
+                    doctors: form.doctors,
                     scene: form.scene,
                     extractingDate: extractingDate,
                 },
@@ -105,9 +135,13 @@ const getReservationData = async () => {
 
         <!-- 検索条件 -->
         <SearchCondition
+            :masterDoctor="masterDoctor"
+            :searchDoctor="searchDoctor"
+            :unSearchDoctor="unSearchDoctor"
             :searchScenario="searchScenario"
             :unSearchScenario="unSearchScenario"
             :masterScenario="masterScenario"
+            @emitSearchDoctor="changeSearchDoctor"
             @emitSearchScenario="changeSearchScenario"
             @clickSearchButton="clickSearchButton"
         />

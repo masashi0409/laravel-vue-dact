@@ -42,16 +42,6 @@ const clickLink = (routeName) => {
                     </template>
                 </v-list-item>
                 <v-list-item
-                    title="ユーザ設定（初期条件）"
-                    value="user-setting"
-                    color="primary"
-                    variant="tonal"
-                >
-                    <template v-slot:prepend>
-                        <v-icon icon="mdi-cog" color="primary"></v-icon>
-                    </template>
-                </v-list-item>
-                <v-list-item
                     title="外来予約リスト"
                     value="reservation"
                     color="primary"
