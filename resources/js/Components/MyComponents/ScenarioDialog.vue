@@ -1,6 +1,10 @@
 <script setup>
 import { ref, onMounted, watch } from 'vue'
 
+/**
+ * 初期条件変更 算定シナリオ ダイアログ
+ */
+
 const { editSearchScenario, editUnsearchScenario } = defineProps({
     editSearchScenario: Array,
     editUnsearchScenario: Array,
@@ -11,6 +15,28 @@ const emit = defineEmits(['clickSubmit', 'clickCancel'])
 onMounted(() => {
     // console.log(editSearchScenario)
     // console.log(editUnsearchScenario)
+
+    unSearchTableDatas.value = []
+    unSearchItems.value.forEach((d) => {
+        unSearchTableDatas.value.push({
+            id: d.id,
+            scenario: {
+                name: d.name,
+                color: d.color,
+            },
+        })
+    })
+
+    searchTableDatas.value = []
+    searchItems.value.forEach((d) => {
+        searchTableDatas.value.push({
+            id: d.id,
+            scenario: {
+                name: d.name,
+                color: d.color,
+            },
+        })
+    })
 })
 /**
  * unsearchテーブルの設定・データ
@@ -20,11 +46,25 @@ const unSearchHeaders = [
     {
         title: '未選択算定シナリオ',
         align: 'start',
-        key: 'name',
+        key: 'scenario',
     },
 ]
 const filterUnsearch = ref()
 const unSearchItems = ref(editUnsearchScenario) // unsearchのシナリオテーブルデータ
+// テーブル用
+const unSearchTableDatas = ref([])
+watch(unSearchItems, () => {
+    unSearchTableDatas.value = []
+    unSearchItems.value.forEach((d) => {
+        unSearchTableDatas.value.push({
+            id: d.id,
+            scenario: {
+                name: d.name,
+                color: d.color,
+            },
+        })
+    })
+})
 const selectedUnsearch = ref([]) // unsearchテーブルで選択されたもの
 // watch(selectedUnsearch, () => {
 //     console.log(selectedUnsearch.value)
@@ -38,12 +78,28 @@ const searchHeaders = [
     {
         title: '選択算定シナリオ',
         align: 'start',
-        key: 'name',
+        key: 'scenario',
     },
 ]
 const filterSearch = ref()
 const searchItems = ref(editSearchScenario) // searchのシナリオテーブルデータ
-const selectedSearch = ref([]) // searchテーブルで選択されたもの
+// テーブル用
+const searchTableDatas = ref([])
+watch(searchItems, () => {
+    searchTableDatas.value = []
+    searchItems.value.forEach((d) => {
+        searchTableDatas.value.push({
+            id: d.id,
+            scenario: {
+                name: d.name,
+                color: d.color,
+            },
+        })
+    })
+})
+
+// searchテーブルで選択されたもの
+const selectedSearch = ref([])
 // watch(selectedSearch, () => {
 //     console.log(selectedSearch.value)
 // })
@@ -57,18 +113,42 @@ const addSearch = () => {
     selectedUnsearch.value.forEach((s) => {
         // console.log(s)
         let selectedScenario = unSearchItems.value.find((i) => i.id === s) // nameが必要なため
+
         // searchItemsにaddする
         searchItems.value.push(selectedScenario)
 
         // unSearchから削除する
         unSearchItems.value = unSearchItems.value.filter((i) => i.id !== s)
     })
+
+    searchTableDatas.value = []
+    searchItems.value.forEach((d) => {
+        searchTableDatas.value.push({
+            id: d.id,
+            scenario: {
+                name: d.name,
+                color: d.color,
+            },
+        })
+    })
+
     selectedUnsearch.value = []
 }
 
 const addAllSearch = () => {
     searchItems.value = [...searchItems.value, ...unSearchItems.value]
     unSearchItems.value = []
+
+    searchTableDatas.value = []
+    searchItems.value.forEach((d) => {
+        searchTableDatas.value.push({
+            id: d.id,
+            scenario: {
+                name: d.name,
+                color: d.color,
+            },
+        })
+    })
 }
 
 // searchTableDataで選択されているものをunsearchTableへ
@@ -82,12 +162,35 @@ const addUnsearch = () => {
         // searchから削除する
         searchItems.value = searchItems.value.filter((i) => i.id !== s)
     })
+
+    unSearchTableDatas.value = []
+    unSearchItems.value.forEach((d) => {
+        unSearchTableDatas.value.push({
+            id: d.id,
+            scenario: {
+                name: d.name,
+                color: d.color,
+            },
+        })
+    })
+
     selectedSearch.value = []
 }
 
 const addAllUnSearch = () => {
     unSearchItems.value = [...unSearchItems.value, ...searchItems.value]
     searchItems.value = []
+
+    unSearchTableDatas.value = []
+    unSearchItems.value.forEach((d) => {
+        unSearchTableDatas.value.push({
+            id: d.id,
+            scenario: {
+                name: d.name,
+                color: d.color,
+            },
+        })
+    })
 }
 
 /**
@@ -101,6 +204,10 @@ const submit = () => {
 
 const cancel = () => {
     emit('clickCancel')
+}
+
+const getScenarioColor = (color) => {
+    return `color: #${color}`
 }
 </script>
 <template>
@@ -123,14 +230,27 @@ const cancel = () => {
 
                             <v-data-table
                                 :headers="unSearchHeaders"
-                                :items="unSearchItems"
+                                :items="unSearchTableDatas"
                                 item-value="id"
                                 show-select
                                 v-model="selectedUnsearch"
                                 v-model:items-per-page="unSearchItemPerPage"
                                 :search="filterUnsearch"
                                 class="unsearch-table search-table"
-                            ></v-data-table>
+                            >
+                                <!-- シナリオ 色 名前 -->
+                                <template v-slot:item.scenario="{ value }">
+                                    <v-sheet>
+                                        <v-icon
+                                            :style="
+                                                getScenarioColor(value.color)
+                                            "
+                                            icon="mdi-square"
+                                        ></v-icon>
+                                        {{ value.name }}
+                                    </v-sheet>
+                                </template>
+                            </v-data-table>
                         </v-container>
                     </v-col>
 
@@ -169,14 +289,27 @@ const cancel = () => {
 
                             <v-data-table
                                 :headers="searchHeaders"
-                                :items="searchItems"
+                                :items="searchTableDatas"
                                 item-value="id"
                                 show-select
                                 v-model="selectedSearch"
                                 v-model:items-per-page="searchItemPerPage"
                                 :search="filterSearch"
                                 class="search-table"
-                            ></v-data-table>
+                            >
+                                <!-- シナリオ 色 名前 -->
+                                <template v-slot:item.scenario="{ value }">
+                                    <v-sheet>
+                                        <v-icon
+                                            :style="
+                                                getScenarioColor(value.color)
+                                            "
+                                            icon="mdi-square"
+                                        ></v-icon>
+                                        {{ value.name }}
+                                    </v-sheet>
+                                </template>
+                            </v-data-table>
                         </v-container>
                     </v-col>
                 </v-row>

@@ -34,7 +34,6 @@ class CalcAchieve extends Model
         return CalcAchieve::
             selectRaw('
                 scenariocontrol_sysid
-                , display_name
                 , key_date
                 , count(*) as santeicount
             ')

@@ -37,7 +37,8 @@ class SearchCondition extends Model
                 ->select(
                     'dmart_search_condition_detail.search_id',
                     'dmart_search_condition_detail.code',
-                    'dmart_m_scenario_control.display_name'
+                    'dmart_m_scenario_control.display_name',
+                    'dmart_m_scenario_control.color_code'
                 )
                 ->join('dmart_m_scenario_control', function($join) {
                     $join->on('dmart_search_condition_detail.code',

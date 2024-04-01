@@ -7,9 +7,9 @@ const props = defineProps({
 
 const headers = [
     {
-        title: 'シナリオ名',
+        title: '算定シナリオ',
         align: 'start',
-        key: 'display_name',
+        key: 'scenario',
         width: 500,
     },
     {
@@ -43,7 +43,7 @@ const headers = [
         },
     },
     {
-        title: '先月比',
+        title: '前月比',
         align: 'center',
         key: 'diff_prev_month_calc_ratio',
         width: 150,
@@ -64,7 +64,10 @@ watch(calcSituationDatas, () => {
     tableDatas.value = []
     calcSituationDatas.value.forEach((d) => {
         tableDatas.value.push({
-            display_name: d.display_name,
+            scenario: {
+                name: d.display_name,
+                color: d.color_code,
+            },
             calc_archive_count: `${d.calc_archive_count} (+${d.diffPrevArchiveCount}件)`,
             calc_count: `${d.calc_count} (${d.diffPrevCalcCount})`,
             uncalc_count: `${d.uncalc_count} (${d.diffPrevUncalcCount})`,
@@ -75,7 +78,11 @@ watch(calcSituationDatas, () => {
     })
 })
 
-const getColor = (value) => {
+const getScenarioColor = (color) => {
+    return `color: #${color}`
+}
+
+const getPlusMinusColor = (value) => {
     if (value > 0) {
         return 'text-blue-darken-4'
     } else if (value < 0) {
@@ -94,15 +101,27 @@ const getColor = (value) => {
             :items="tableDatas"
             class="calc-situation-table"
         >
+            <!-- シナリオ 色 名前 -->
+            <template v-slot:item.scenario="{ value }">
+                <v-sheet>
+                    <v-icon
+                        :style="getScenarioColor(value.color)"
+                        icon="mdi-square"
+                    ></v-icon>
+                    {{ value.name }}
+                </v-sheet>
+            </template>
+            <!-- 先月比 -->
             <template v-slot:item.diff_prev_month_calc_ratio="{ value }">
-                <v-sheet :class="getColor(value)">
+                <v-sheet :class="getPlusMinusColor(value)">
                     <template v-if="value > 0"> +{{ value }}% </template>
                     <template v-if="value < 0"> {{ value }}% </template>
                     <template v-if="value === 0"> {{ value }}% </template>
                 </v-sheet>
             </template>
+            <!-- 前年同月比 -->
             <template v-slot:item.diff_prev_year_calc_ratio="{ value }">
-                <v-sheet :class="getColor(value)">
+                <v-sheet :class="getPlusMinusColor(value)">
                     <template v-if="value > 0"> +{{ value }}% </template>
                     <template v-if="value < 0"> {{ value }}% </template>
                     <template v-if="value === 0"> {{ value }}% </template>

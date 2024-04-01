@@ -70,6 +70,7 @@ class CalcSituationDataApiController extends Controller
             selectRaw('
                 scenario_control_sysid,
                 display_name,
+                color_code,
                 calc_archieve.calc_archive_count,
                 calc_archieve.calc_archive_count - prev_calc_archieve.calc_archive_count as diffPrevArchiveCount, 
                 calc_summary_count_ratio.calc_count,

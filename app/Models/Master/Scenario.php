@@ -12,8 +12,17 @@ class Scenario extends Model
     
     protected $table = 'dmart_m_scenario_control';
 
-    public static function getScenarios() {
-        return Scenario::select('scenario_control_sysid', 'display_name')
+    public function scopeIds($query, $ids = []) {
+        if (count($ids)) {
+            return $query->whereIn('scenario_control_sysid', $ids);
+        } else {
+            return $query;
+        }
+    }
+
+    public static function getScenarios($ids = []) {
+        return Scenario::select('scenario_control_sysid', 'display_name', 'color_code')
+        ->ids($ids)
         ->orderBy('scenario_control_sysid', 'asc')
         ->get();
     }

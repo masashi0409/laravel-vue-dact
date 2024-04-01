@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Log;
 use App\Models\CalcAchieve;
+use App\Models\Master\Scenario;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
 
@@ -16,7 +17,9 @@ class CalcChartDataApiController extends Controller
     {
         // Log::debug('calc chart data api index');
         
-        $result = CalcAchieve::getCalcArchiveChartData($request->scenarios, $request->fromDate, $request->toDate);
+        $scenarios = Scenario::getScenarios($request->scenarios);
+
+        $resultCalcAchiveChartData = CalcAchieve::getCalcArchiveChartData($request->scenarios, $request->fromDate, $request->toDate);
         
         // 日付とdataのindexの関係
         // 開始と終了から期間作成
@@ -27,20 +30,21 @@ class CalcChartDataApiController extends Controller
             array_push($dataKeyDate, $keyDate->toDateString());
         }
         
-        $senarioLabels = $result->unique('scenariocontrol_sysid')->pluck('display_name', 'scenariocontrol_sysid'); //uniqueで重複削除、pluckで指定カラムだけの配列
+        // $senarioLabels = $result->unique('scenariocontrol_sysid')->pluck('display_name', 'scenariocontrol_sysid'); //uniqueで重複削除、pluckで指定カラムだけの配列
 
         $datasets = [];
-        // datasetsにlabelを入れる
-        foreach ($senarioLabels as $senarioId =>  $senarioLabel) {
-            $datasets[$senarioId] = [
-                    'label' => $senarioLabel,
+        // datasetsにlabel, colorを入れる
+        foreach ($scenarios as $scenario) {
+            $datasets[$scenario->scenario_control_sysid] = [
+                    'label' => $scenario->display_name,
+                    'color' => $scenario->color_code,
                     'jissekiData' => array_fill(0, count($dataKeyDate), 0),
                     'ruikeiData' => array_fill(0, count($dataKeyDate), 0)
                 ];
         }
 
         // 実績データをdatasetに詰めていく
-        $result->each(function ($row) use($dataKeyDate, &$datasets) { // 更新したいので&をつけてuse https://teratail.com/questions/76248
+        $resultCalcAchiveChartData->each(function ($row) use($dataKeyDate, &$datasets) { // 更新したいので&をつけてuse https://teratail.com/questions/76248
             // Log::debug($row->scenariocontrol_sysid);
             // Log::debug($row->key_date);
             // Log::debug($row->santeicount);

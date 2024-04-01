@@ -42,6 +42,7 @@ class AppController extends Controller
                 $searchConditionScenario[] = [
                     'id' => $s->code,
                     'name' =>  $s->display_name,
+                    'color' => $s->color_code,
                     'type' => 4
                 ];
             }
@@ -54,6 +55,7 @@ class AppController extends Controller
                 $unSearchConditionScenario[] = [
                     'id' => $masterScenario->scenario_control_sysid,
                     'name' =>  $masterScenario->display_name,
+                    'color' => $masterScenario->color_code,
                     'type' => 4
                 ];
             }

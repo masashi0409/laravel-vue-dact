@@ -46,12 +46,6 @@ const {
 onMounted(() => {
     // console.log('App onMounted')
 
-    // シナリオマスタ取得
-    masterScenarios.forEach((scenario, i) => {
-        masterScenarios[i].label =
-            scenario.scenario_control_sysid + ':' + scenario.display_name
-    })
-
     // 検索初期条件を検索条件に設定
     form.scenarios = searchConditionScenario.map((i) => i['id'])
 
@@ -95,11 +89,13 @@ const onScenarioSubmit = (editingSearchScenario) => {
             searchScenario.value.push({
                 id: scenario.scenario_control_sysid,
                 name: scenario.display_name,
+                color: scenario.color_code,
             })
         } else {
             unSearchScenario.value.push({
                 id: scenario.scenario_control_sysid,
                 name: scenario.display_name,
+                color: scenario.color_code,
             })
         }
     })
@@ -349,7 +345,7 @@ const updateCalcChart = () => {
     datasets.value = []
     calcData.scenarios.forEach((scenario, i) => {
         // console.log(scenario)
-        // console.log(calcData.data[scenario])
+        console.log(calcData.data[scenario])
 
         // 累計トグルで累計か実績データを入れる
         let data = []
@@ -366,8 +362,8 @@ const updateCalcChart = () => {
         datasets.value.push({
             label: calcData.data[scenario].label,
             data: data,
-            backgroundColor: color[i],
-            borderColor: color[i],
+            backgroundColor: '#' + calcData.data[scenario].color,
+            borderColor: '#' + calcData.data[scenario].color,
         })
     })
 

@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, watch } from 'vue'
+import { ref, onMounted, computed, watch } from 'vue'
 
 const { masterScenarios, editSearchScenario } = defineProps({
     masterScenarios: Array,
@@ -11,6 +11,17 @@ const emit = defineEmits(['clickSubmit', 'clickCancel'])
 onMounted(() => {
     // console.log(masterScenarios)
     // console.log(editSearchScenario)
+
+    tableDatas.value = []
+    searchItems.value.forEach((d) => {
+        tableDatas.value.push({
+            id: d.scenario_control_sysid,
+            scenario: {
+                name: d.display_name,
+                color: d.color_code,
+            },
+        })
+    })
 
     // searchItemsにeditSearchScenario
     editSearchScenario.forEach((initialSelectScenario) => {
@@ -26,14 +37,29 @@ const searchHeaders = [
     {
         title: '選択算定シナリオ',
         align: 'start',
-        key: 'display_name',
+        key: 'scenario',
     },
 ]
 const filterText = ref()
 const searchItems = ref(masterScenarios) // テーブルデータ
-const selectedItems = ref([]) // テーブルで選択されたもの
+// テーブル用
+const tableDatas = ref([])
+watch(searchItems, () => {
+    tableDatas.value = []
+    searchItems.value.forEach((d) => {
+        tableDatas.value.push({
+            id: d.scenario_control_sysid,
+            scenario: {
+                name: d.display_name,
+                color: d.color_code,
+            },
+        })
+    })
+})
+// テーブルで選択されている
+const selectedItems = ref([])
 watch(selectedItems, () => {
-    // console.log(selectedItems.value)
+    console.log(selectedItems.value)
 })
 
 /**
@@ -47,6 +73,10 @@ const submit = () => {
 
 const cancel = () => {
     emit('clickCancel')
+}
+
+const getScenarioColor = (color) => {
+    return `color: #${color}`
 }
 </script>
 <template>
@@ -63,8 +93,8 @@ const cancel = () => {
             ></v-text-field>
             <v-data-table
                 :headers="searchHeaders"
-                :items="searchItems"
-                item-value="scenario_control_sysid"
+                :items="tableDatas"
+                item-value="id"
                 show-select
                 v-model="selectedItems"
                 :search="filterText"
@@ -73,6 +103,17 @@ const cancel = () => {
                 height="400"
                 :items-per-page="-1"
             >
+                <!-- シナリオ 色 名前 -->
+                <template v-slot:item.scenario="{ value }">
+                    <v-sheet>
+                        <v-icon
+                            :style="getScenarioColor(value.color)"
+                            icon="mdi-square"
+                        ></v-icon>
+                        {{ value.name }}
+                    </v-sheet>
+                </template>
+                <!-- ページングなし -->
                 <template #bottom />
             </v-data-table>
         </v-card-text>
