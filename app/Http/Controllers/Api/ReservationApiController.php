@@ -14,6 +14,9 @@ use App\Models\Master\Doctor;
 
 class ReservationApiController extends Controller
 {
+    /**
+     * 外来予約リストデータを取得
+     */
     function index (Request $request)
     {
         
@@ -25,7 +28,6 @@ class ReservationApiController extends Controller
         $doctors = $request->doctors;
         $scene = $request->scene;
 
-        
         // 患者subquery
         $personal = Personal::
             selectRaw('
@@ -51,7 +53,7 @@ class ReservationApiController extends Controller
         
         
         $query = Reservation::
-            doctors($doctors)
+            doctors($doctors) // 検索条件の医師のみ
             ->selectRaw('
                 reserved_datetime,
                 dmart_reservation_list.personal_id,
@@ -72,12 +74,19 @@ class ReservationApiController extends Controller
                         $join->on('dmart_daily_calc_patient.scenariocontrol_sysid',
                         '=', 'dmart_m_scenario_control.scenario_control_sysid');
                     })
+                    ->leftJoin('dmart_calc_patient_check', function($join) use($extractingDate) { // 算定患者チェックとjoinして当日チェックフラグを取得
+                        $join->on('dmart_daily_calc_patient.scenariocontrol_sysid', '=', DB::raw('dmart_calc_patient_check.scenariocontrol_sysid COLLATE utf8mb4_general_ci'))
+                            ->on('dmart_daily_calc_patient.personal_id', '=', DB::raw('dmart_calc_patient_check.personal_id COLLATE utf8mb4_general_ci'))
+                            ->where('dmart_calc_patient_check.target_date', $extractingDate);
+                    })
                     ->where('dmart_daily_calc_patient.key_date', $extractingDate)
                     ->select(
                         'dmart_daily_calc_patient.personal_id',
                         'dmart_daily_calc_patient.achievements_count',
                         'dmart_m_scenario_control.scenario_control_sysid',
                         'dmart_m_scenario_control.display_name',
+                        'dmart_calc_patient_check.id as check_id',
+                        'dmart_calc_patient_check.check_flg as check_flg' // 算定患者チェックフラグ
                         )
                     ;
                 }

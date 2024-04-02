@@ -75,12 +75,19 @@ class InpatientApiController extends Controller
                         $join->on('dmart_daily_calc_patient.scenariocontrol_sysid',
                         '=', 'dmart_m_scenario_control.scenario_control_sysid');
                     })
+                    ->leftJoin('dmart_calc_patient_check', function($join) use($extractingDate) { // 算定患者チェックとjoinして当日チェックフラグを取得
+                        $join->on('dmart_daily_calc_patient.scenariocontrol_sysid', '=', DB::raw('dmart_calc_patient_check.scenariocontrol_sysid COLLATE utf8mb4_general_ci'))
+                            ->on('dmart_daily_calc_patient.personal_id', '=', DB::raw('dmart_calc_patient_check.personal_id COLLATE utf8mb4_general_ci'))
+                            ->where('dmart_calc_patient_check.target_date', $extractingDate);
+                    })
                     ->where('dmart_daily_calc_patient.key_date', $extractingDate)
                     ->select(
                         'dmart_daily_calc_patient.personal_id',
                         'dmart_daily_calc_patient.achievements_count',
                         'dmart_m_scenario_control.scenario_control_sysid',
                         'dmart_m_scenario_control.display_name',
+                        'dmart_calc_patient_check.id as check_id',
+                        'dmart_calc_patient_check.check_flg as check_flg' // 算定患者チェックフラグ
                         )
                     ;
                 }

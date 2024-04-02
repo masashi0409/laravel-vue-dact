@@ -1,4 +1,5 @@
 <script setup>
+import axios from 'axios'
 import { computed, ref, watch } from 'vue'
 
 const props = defineProps({
@@ -32,6 +33,10 @@ const headers = [
     { title: '逆紹介', align: 'center', key: 'latest_point1' },
 ]
 
+/**
+ *
+ * param e calcPatient 患者別算定状況データ
+ */
 const actionCalcPatient = (e) => {
     if (e.achievements_count > 0) {
         return 'text-blue-darken-4'
@@ -40,8 +45,39 @@ const actionCalcPatient = (e) => {
     }
 }
 
-const clickunCalcIcon = (e) => {
-    console.log(e)
+/**
+ * 未算定の指導・管理をクリック
+ * ！を✓に変える check_flg:null or 0の時
+ * ✓を！に変える check_flg:1 の時
+ * calcPatientCheckを登録or更新
+ */
+const clickUnCalcIcon = async (e) => {
+    let requestCheckFlg = false
+    if (e.check_flg == null || e.check_flg == 0) {
+        requestCheckFlg = true
+    }
+    if (e.check_flg == 1) {
+        requestCheckFlg = false
+    }
+
+    try {
+        await axios
+            .post('/api/calc-patient-check', {
+                personal_id: e.personal_id,
+                scenario_id: e.scenario_control_sysid,
+                check_flg: requestCheckFlg,
+            })
+            .then((res) => {
+                console.log(res.data)
+                if (requestCheckFlg) {
+                    e.check_flg = 1
+                } else {
+                    e.check_flg = 0
+                }
+            })
+    } catch (e) {
+        console.log(e)
+    }
 }
 </script>
 
@@ -76,13 +112,30 @@ const clickunCalcIcon = (e) => {
                         >
                             mdi-check-bold
                         </v-icon>
-                        <v-icon
-                            color="orange"
-                            v-if="calcPatient.achievements_count == 0"
-                            @click="clickunCalcIcon(calcPatient)"
+
+                        <template
+                            v-if="
+                                calcPatient.check_flg == null ||
+                                calcPatient.check_flg == 0
+                            "
                         >
-                            mdi-exclamation
-                        </v-icon>
+                            <v-icon
+                                color="orange"
+                                v-if="calcPatient.achievements_count == 0"
+                                @click="clickUnCalcIcon(calcPatient)"
+                            >
+                                mdi-exclamation
+                            </v-icon>
+                        </template>
+                        <template v-if="calcPatient.check_flg == 1">
+                            <v-icon
+                                color="green"
+                                v-if="calcPatient.achievements_count == 0"
+                                @click="clickUnCalcIcon(calcPatient)"
+                            >
+                                mdi-check-bold
+                            </v-icon>
+                        </template>
                     </v-sheet>
                 </template>
             </template>

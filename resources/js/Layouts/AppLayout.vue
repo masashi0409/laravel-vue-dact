@@ -5,12 +5,8 @@ import { router } from '@inertiajs/vue3'
 const drawer = ref(false)
 
 const clickLink = (routeName) => {
-    console.log(routeName.id)
     if (routeName.id === 'top') {
         router.visit('/')
-    }
-    if (routeName.id === 'user-setting') {
-        router.visit('/user-setting')
     }
     if (routeName.id === 'reservation') {
         router.visit('/reservation')

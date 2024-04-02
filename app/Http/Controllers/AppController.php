@@ -96,8 +96,7 @@ class AppController extends Controller
          */
         // 最新更新日取得
         $processManagement = ProcessManagement::getFirstExtractingDate();
-        // Log::debug(print_r($extractingDate[0]->extracting_date, true)); // 2022-08-25
-        $extractingDate = $processManagement->extracting_date;
+        $extractingDate = $processManagement->extracting_date;// 2022-08-25
         $dt = Carbon::parse($processManagement->extracting_date); // 2022-08-25 00:00:00
         $year = $dt->year; // 2022
         $month = $dt->month; // 8

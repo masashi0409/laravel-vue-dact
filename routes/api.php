@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\CalcSituationDataApiController;
 use App\Http\Controllers\Api\ReservationApiController;
 use App\Http\Controllers\Api\InpatientApiController;
 use App\Http\Controllers\Api\SearchConditionApiController;
+use App\Http\Controllers\Api\CalcPatientCheckApiController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -22,8 +23,13 @@ use App\Http\Controllers\Api\SearchConditionApiController;
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
-
+// test
 Route::get('data-table-item', [DataTableItemApiController::class, 'index'])->name('data-table-item');
+
+// 初期検索条件更新
+Route::
+post('/update-search-condition', [SearchConditionApiController::class, 'updateSearchCondition'])
+->name('api.update-search-condition');
 
 // 算定チャート
 // 日次データ取得
@@ -51,6 +57,7 @@ Route::
 get('/inpatients', [InpatientApiController::class, 'index'])
 ->name('api.inpatients');
 
+// 算定チェック
 Route::
-post('/update-search-condition', [SearchConditionApiController::class, 'updateSearchCondition'])
-->name('api.update-search-condition');
+post('/calc-patient-check', [CalcPatientCheckApiController::class, 'calcPatientCheck'])
+->name('api.calc-patient-check');
