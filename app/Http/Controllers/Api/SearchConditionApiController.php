@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 use App\Models\SearchCondition;
 use App\Models\SearchConditionDetail;
@@ -28,6 +29,26 @@ class SearchConditionApiController extends Controller
         // TODO ユーザID取得
         $userId = '1';
         $searchCondition = SearchCondition::getSearchIdByUserId($userId);
+
+        // userのsearchCondtionが無かったら作成する
+        if ($searchCondition === null) {
+            DB::beginTransaction();
+            try{
+                $searchCondition = SearchCondition::create([
+                    'enable_flg' => true,
+                    'create_user' => $userId,
+                ]);
+                DB::commit();
+                Log::debug($userId . 'searchConditionを作成しました。');
+                Log::debug($searchCondition);
+            } catch (\Exception $e) {
+                DB::rollback();
+                Log::debug($e);
+            }
+        }
+        
+        
+
         $searchId = $searchCondition->search_id;
 
         // 既存の検索条件削除
@@ -49,6 +70,8 @@ class SearchConditionApiController extends Controller
             }
 
             DB::commit();
+            
+            Log::debug(Carbon::now());
 
             return response()->json(
                 [
@@ -61,7 +84,5 @@ class SearchConditionApiController extends Controller
             DB::rollback();
             Log::debug($e);
         }
- 
-        // requestの検索条件をinsert
     }
 }
