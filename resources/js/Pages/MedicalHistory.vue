@@ -1,8 +1,10 @@
 <script setup>
 import { Head } from '@inertiajs/vue3'
 import { reactive, ref, onMounted, watch } from 'vue'
+import axios from 'axios'
 
 import DiagnosisTable from '@/Components/MyComponents/MedicalHistory/DiagnosisTable.vue'
+import CostChart from '@/Components/MyComponents/MedicalHistory/CostChart.vue'
 
 /**
  * 診療履歴ページ
@@ -14,8 +16,34 @@ const { personal, diagnosis } = defineProps({
 })
 
 onMounted(() => {
+    console.log('medical history')
     console.log(diagnosis)
+
+    // 診療コストチャートデータ取得
+    getCostPatientData()
 })
+
+const outPatientCosts = ref([])
+/**
+ * 診療コストチャートデータ取得
+ */
+const getCostPatientData = async () => {
+    try {
+        await axios
+            .get('/api/outpatient-cost', {
+                params: {
+                    personalId: personal.personal_id,
+                },
+            })
+            .then((res) => {
+                console.log('get cost patient data.')
+                outPatientCosts.value = res.data.outPatientCosts
+                console.log(outPatientCosts.value)
+            })
+    } catch (e) {
+        console.log(e)
+    }
+}
 </script>
 <template>
     <Head title="診療履歴" />
@@ -33,8 +61,10 @@ onMounted(() => {
                 </v-container>
             </v-card-text>
 
+            <CostChart :outPatientCosts="outPatientCosts" />
+
             <!-- diagnosis table -->
-            <DiagnosisTable :diagnosis="diagnosis"></DiagnosisTable>
+            <DiagnosisTable :diagnosis="diagnosis" />
         </v-card>
     </v-container>
 </template>

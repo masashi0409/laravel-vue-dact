@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\ReservationApiController;
 use App\Http\Controllers\Api\InpatientApiController;
 use App\Http\Controllers\Api\SearchConditionApiController;
 use App\Http\Controllers\Api\CalcPatientCheckApiController;
+use App\Http\Controllers\Api\CostPatientApiController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -61,3 +62,8 @@ get('/inpatients', [InpatientApiController::class, 'index'])
 Route::
 post('/calc-patient-check', [CalcPatientCheckApiController::class, 'calcPatientCheck'])
 ->name('api.calc-patient-check');
+
+// 外来コスト
+Route::
+get('/outpatient-cost', [CostPatientApiController::class, 'getOutpatientCost'])
+->name('api.outpatient-cost');
