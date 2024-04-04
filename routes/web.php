@@ -8,6 +8,7 @@ use App\Http\Controllers\AppController;
 use App\Http\Controllers\ReservationController;
 use App\Http\Controllers\InpatientController;
 use App\Http\Controllers\UserSettingController;
+use App\Http\Controllers\MedicalHistoryController;
 
 /*
 |--------------------------------------------------------------------------
@@ -77,3 +78,6 @@ Route::get('/inpatient', [InpatientController::class, 'index'])->name('inpatient
 
 // ユーザ設定（初期条件）
 Route::get('/user-setting', [UserSettingController::class, 'index'])->name('app');
+
+// 診療履歴
+Route::get('/medical-history/{personal}', [MedicalHistoryController::class, 'show'])->name('medical-history.show');

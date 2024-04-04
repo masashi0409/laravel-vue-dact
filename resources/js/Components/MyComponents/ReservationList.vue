@@ -79,6 +79,10 @@ const clickUnCalcIcon = async (e) => {
         console.log(e)
     }
 }
+
+const link = (value) => {
+    return `medical-history/${value}`
+}
 </script>
 
 <template>
@@ -89,6 +93,12 @@ const clickUnCalcIcon = async (e) => {
             items-per-page-text="表示行数"
             class="reservation-table"
         >
+            <!-- 患者番号を診療履歴のリンクに -->
+            <template v-slot:item.personal_id="{ value }">
+                <div class="text-sky-600">
+                    <a target="_blank" :href="link(value)">{{ value }}</a>
+                </div>
+            </template>
             <!-- 主病名 -->
             <template v-slot:item.diagnosis="{ value }">
                 <template v-for="disease in value">
