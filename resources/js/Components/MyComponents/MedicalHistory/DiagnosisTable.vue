@@ -9,10 +9,10 @@ const headers = [
     { title: '病名コード', align: 'center', key: 'disease_code' },
     { title: '病名', align: 'start', key: 'disease_name' },
     { title: '疑い', align: 'center', key: 'suspicion' },
-    { title: '主傷病', align: 'start', key: 'primary_disease' },
-    { title: '開始日', align: 'start', key: 'problem_begin' },
-    { title: '終了日', align: 'start', key: 'problem_end' },
-    { title: '転帰', align: 'start', key: 'problem_outcome' },
+    { title: '主傷病', align: 'center', key: 'primary_disease' },
+    { title: '開始日', align: 'center', key: 'problem_begin' },
+    { title: '終了日', align: 'center', key: 'problem_end' },
+    { title: '転帰', align: 'center', key: 'problem_outcome' },
 ]
 
 const diagnosisData = ref(diagnosis)
