@@ -83,12 +83,27 @@ const actionCalcPatient = (e) => {
                         >
                             mdi-check-bold
                         </v-icon>
-                        <v-icon
-                            color="orange"
-                            v-if="calcPatient.achievements_count == 0"
+                        <template
+                            v-if="
+                                calcPatient.check_flg == null ||
+                                calcPatient.check_flg == 0
+                            "
                         >
-                            mdi-exclamation
-                        </v-icon>
+                            <v-icon
+                                color="orange"
+                                v-if="calcPatient.achievements_count == 0"
+                            >
+                                mdi-exclamation
+                            </v-icon>
+                        </template>
+                        <template v-if="calcPatient.check_flg == 1">
+                            <v-icon
+                                color="green"
+                                v-if="calcPatient.achievements_count == 0"
+                            >
+                                mdi-check-bold
+                            </v-icon>
+                        </template>
                     </v-sheet>
                 </template>
             </template>
