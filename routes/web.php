@@ -4,11 +4,13 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+use App\Http\Controllers\TestController;
 use App\Http\Controllers\AppController;
 use App\Http\Controllers\ReservationController;
 use App\Http\Controllers\InpatientController;
 use App\Http\Controllers\UserSettingController;
 use App\Http\Controllers\MedicalHistoryController;
+use App\Http\Controllers\GridLayoutController;
 
 /*
 |--------------------------------------------------------------------------
@@ -42,9 +44,9 @@ Route::middleware('auth')->group(function () {
 
 require __DIR__.'/auth.php';
 
-Route::get('/test', function () {
-    return Inertia::render('Test');
-})->middleware(['auth', 'verified'])->name('test');
+Route::get('/test', [TestController::class, 'index'])
+// ->middleware(['auth', 'verified'])
+->name('test');
 
 Route::get('/vuetifydemo', function () {
     return Inertia::render('VuetifyDemo01');
@@ -81,3 +83,6 @@ Route::get('/user-setting', [UserSettingController::class, 'index'])->name('app'
 
 // 診療履歴
 Route::get('/medical-history/{personal}', [MedicalHistoryController::class, 'show'])->name('medical-history.show');
+
+// ダッシュボード グリッドレイアウト
+Route::get('/grid-layout', [GridLayoutController::class, 'index'])->name('grid-layout.index');

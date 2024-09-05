@@ -22,10 +22,10 @@ const clickLink = (routeName) => {
             <v-app-bar-nav-icon variant="text" @click.stop="drawer = !drawer">
             </v-app-bar-nav-icon>
 
-            <v-app-bar-title> Daily Act </v-app-bar-title>
+            <v-app-bar-title> Sample-Laravel-Vue </v-app-bar-title>
         </v-app-bar>
 
-        <v-navigation-drawer v-model="drawer">
+        <v-navigation-drawer v-model="drawer" disable-resize-watcher>
             <v-list @click:select="clickLink">
                 <v-list-item
                     title="トップ"
