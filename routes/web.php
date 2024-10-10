@@ -86,3 +86,7 @@ Route::get('/medical-history/{personal}', [MedicalHistoryController::class, 'sho
 
 // ダッシュボード グリッドレイアウト
 Route::get('/grid-layout', [GridLayoutController::class, 'index'])->name('grid-layout.index');
+
+Route::get('/table-filter-sample', function () {
+    return Inertia::render('TableFilterSample');
+})->name('table-filter-sample');
